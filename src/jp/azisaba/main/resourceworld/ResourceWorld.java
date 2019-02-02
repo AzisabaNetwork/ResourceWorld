@@ -73,32 +73,32 @@ public class ResourceWorld extends JavaPlugin {
 		}
 	}
 
-//	public boolean connectPortal(String portalName, String worldName) {
-//
-//		if (!isEnablePortalPlugin()) {
-//			getLogger().warning("AdvancedPortals Pluginがロードされていないためポータルが接続できませんでした。");
-//			return false;
-//		}
-//
-//		AdvancedPortalsPlugin ap = (AdvancedPortalsPlugin) Bukkit.getPluginManager().getPlugin("AdvancedPortals");
-//
-//		MultiversePortals mvp = (MultiversePortals) Bukkit.getPluginManager().getPlugin("Multiverse-Portals");
-//		MVPortal portal = mvp.getPortalManager().getPortal(portalName);
-//
-//		if (portal == null) {
-//			getLogger().warning(portalName + " という名前のポータルがみつかりません。");
-//			return false;
-//		}
-//
-//		boolean success = portal.setProperty("dest", "w:" + worldName);
-//
-//		if (!success) {
-//			getLogger().warning("ポータルの接続に失敗。");
-//		} else {
-//			getLogger().info("ポータルの接続に成功。");
-//		}
-//		return success;
-//	}
+	//	public boolean connectPortal(String portalName, String worldName) {
+	//
+	//		if (!isEnablePortalPlugin()) {
+	//			getLogger().warning("AdvancedPortals Pluginがロードされていないためポータルが接続できませんでした。");
+	//			return false;
+	//		}
+	//
+	//		AdvancedPortalsPlugin ap = (AdvancedPortalsPlugin) Bukkit.getPluginManager().getPlugin("AdvancedPortals");
+	//
+	//		MultiversePortals mvp = (MultiversePortals) Bukkit.getPluginManager().getPlugin("Multiverse-Portals");
+	//		MVPortal portal = mvp.getPortalManager().getPortal(portalName);
+	//
+	//		if (portal == null) {
+	//			getLogger().warning(portalName + " という名前のポータルがみつかりません。");
+	//			return false;
+	//		}
+	//
+	//		boolean success = portal.setProperty("dest", "w:" + worldName);
+	//
+	//		if (!success) {
+	//			getLogger().warning("ポータルの接続に失敗。");
+	//		} else {
+	//			getLogger().info("ポータルの接続に成功。");
+	//		}
+	//		return success;
+	//	}
 
 	public void recreateAllResourceWorlds() {
 		if (createTask != null) {
@@ -214,9 +214,9 @@ public class ResourceWorld extends JavaPlugin {
 		return Bukkit.getPluginManager().getPlugin("Multiverse-Core") != null;
 	}
 
-//	private boolean isEnablePortalPlugin() {
-//		return Bukkit.getPluginManager().getPlugin("AdvancedPortals") != null;
-//	}
+	//	private boolean isEnablePortalPlugin() {
+	//		return Bukkit.getPluginManager().getPlugin("AdvancedPortals") != null;
+	//	}
 
 	private Location getTopLocation(Location loc) {
 		loc = loc.clone();

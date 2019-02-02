@@ -28,10 +28,10 @@ public class ResourceWorldCreateTask {
 	public void runTask() {
 
 		if (plugin.config.logInConsole) {
-			plugin.getLogger().info("次の時刻確認タスクを " + (getWaitTick() / 2) + " tick(s) 後に実行します。");
+			plugin.getLogger().info("次の時刻確認タスクを " + (getWaitTicks() / 2) + " tick(s) 後に実行します。");
 		}
 
-		task = getTask().runTaskLater(plugin, getWaitTick() / 2);
+		task = getTask().runTaskLater(plugin, getWaitTicks() / 2);
 	}
 
 	public void stopTask() {
@@ -40,11 +40,11 @@ public class ResourceWorldCreateTask {
 		}
 	}
 
-	private int getWaitTick() {
-		long nextWarn = TimeCalculateManager.getNextRecreate();
+	private int getWaitTicks() {
+		long nextRecreate = TimeCalculateManager.getNextRecreate();
 		long now = System.currentTimeMillis();
 
-		double distance = (double) (nextWarn - now);
+		double distance = (double) (nextRecreate - now);
 		double seconds = distance / 1000;
 
 		return (int) (seconds * 20);
@@ -58,9 +58,9 @@ public class ResourceWorldCreateTask {
 
 					if (plugin.config.logInConsole) {
 						plugin.getLogger()
-								.info("次の時刻確認タスクは " + (getWaitTick() / 2) + " tick(s) 後に実行します。");
+								.info("次の時刻確認タスクは " + (getWaitTicks() / 2) + " tick(s) 後に実行します。");
 					}
-					task = getTask().runTaskLater(plugin, getWaitTick() / 2);
+					task = getTask().runTaskLater(plugin, getWaitTicks() / 2);
 					return;
 				}
 

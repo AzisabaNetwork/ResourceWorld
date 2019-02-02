@@ -39,9 +39,9 @@ public class BroadcastWarningTask {
 				if (TimeCalculateManager.getNextWarn() - System.currentTimeMillis() > 1000) {
 					if (plugin.config.logInConsole) {
 						plugin.getLogger()
-								.info("次の時刻確認タスクを " + (getWaitTick() / 2) + " tick(s) 後に実行します。");
+								.info("次の時刻確認タスクを " + (getWaitTicks() / 2) + " tick(s) 後に実行します。");
 					}
-					task = getTask().runTaskLater(plugin, getWaitTick() / 2);
+					task = getTask().runTaskLater(plugin, getWaitTicks() / 2);
 					return;
 				}
 
@@ -87,7 +87,7 @@ public class BroadcastWarningTask {
 		};
 	}
 
-	private int getWaitTick() {
+	private int getWaitTicks() {
 		long nextWarn = TimeCalculateManager.getNextWarn();
 		long now = System.currentTimeMillis();
 

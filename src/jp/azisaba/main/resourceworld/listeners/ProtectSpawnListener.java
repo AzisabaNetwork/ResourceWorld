@@ -13,6 +13,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -26,6 +27,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import jp.azisaba.main.resourceworld.ProtectManager;
 import jp.azisaba.main.resourceworld.RecreateWorld;
 import jp.azisaba.main.resourceworld.ResourceWorld;
+import net.md_5.bungee.api.ChatColor;
 
 public class ProtectSpawnListener implements Listener {
 
@@ -282,6 +284,43 @@ public class ProtectSpawnListener implements Listener {
 		if ((e.getEntityType() == EntityType.FALLING_BLOCK)) {
 			e.setCancelled(true);
 		}
+	}
+
+	private List<Material> protectableMaterials = Arrays.asList(Material.CHEST, Material.TRAPPED_CHEST,
+			Material.CRAFTING_TABLE);
+
+	@EventHandler(priority = EventPriority.LOW)
+	public void cancelLockette(PlayerInteractEvent e) {
+		Player p = e.getPlayer();
+		World world = p.getWorld();
+
+		if (e.getAction() != Action.RIGHT_CLICK_BLOCK) {
+			return;
+		}
+
+		if (e.getItem().getType() != Material.SIGN || !protectableMaterials.contains(e.getClickedBlock().getType())) {
+			return;
+		}
+
+		Block signBlock = e.getClickedBlock().getRelative(e.getBlockFace());
+
+		if (!worldMap.containsKey(world.getName())) {
+			return;
+		}
+
+		RecreateWorld rWorld = worldMap.get(world.getName());
+		Location spawnPoint = world.getSpawnLocation();
+
+		if (spawnPoint == null) {
+			return;
+		}
+
+		if (!isCenterArea(signBlock.getLocation(), spawnPoint, rWorld.getProtect())) {
+			return;
+		}
+
+		e.setCancelled(true);
+		p.sendMessage(ChatColor.RED + "中央のため保護できません。");
 	}
 
 	private boolean isCenterArea(Location breakLoc, Location spawnLoc, int protect) {

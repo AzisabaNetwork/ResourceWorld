@@ -36,7 +36,7 @@ public class BroadcastWarningTask {
 		return new BukkitRunnable() {
 			public void run() {
 
-				if (TimeCalculateManager.getNextWarn() - System.currentTimeMillis() > 1000) {
+				if (TimeCalculateManager.getNextWarn() - System.currentTimeMillis() > 500) {
 					if (plugin.config.logInConsole) {
 						plugin.getLogger()
 								.info("次の時刻確認タスクを " + (getWaitTicks() / 2) + " tick(s) 後に実行します。");

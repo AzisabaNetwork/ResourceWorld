@@ -1,10 +1,6 @@
 package jp.azisaba.main.resourceworld.task;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 import org.bukkit.Bukkit;
@@ -13,6 +9,7 @@ import org.bukkit.scheduler.BukkitTask;
 
 import jp.azisaba.main.resourceworld.RecreateWorld;
 import jp.azisaba.main.resourceworld.ResourceWorld;
+import jp.azisaba.main.resourceworld.utils.TimeCalculateManager;
 import net.md_5.bungee.api.ChatColor;
 
 public class ResourceWorldCreateTask {
@@ -44,7 +41,7 @@ public class ResourceWorldCreateTask {
 	}
 
 	private int getWaitTick() {
-		long nextWarn = getRecreateMilliSecond();
+		long nextWarn = TimeCalculateManager.getNextRecreate();
 		long now = System.currentTimeMillis();
 
 		double distance = (double) (nextWarn - now);
@@ -53,51 +50,11 @@ public class ResourceWorldCreateTask {
 		return (int) (seconds * 20);
 	}
 
-	private long getRecreateMilliSecond() {
-		return getNextRecreateDate().getTime();
-	}
-
-	private Date getNextRecreateDate() {
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-		Date date = new Date();
-
-		Calendar calendar = Calendar.getInstance();
-
-		int year, month;
-		if (calendar.get(Calendar.DATE) > 15) {
-
-			month = calendar.get(Calendar.MONTH) + 2;
-			year = calendar.get(Calendar.YEAR);
-
-			if (month == 13) {
-				month = 1;
-				year += 1;
-			}
-
-			try {
-				date = sdf.parse(year + "/" + String.format("%02d", month) + "/01 0:00:00");
-			} catch (ParseException e) {
-				e.printStackTrace();
-			}
-		} else {
-			month = calendar.get(Calendar.MONTH) + 1;
-			year = calendar.get(Calendar.YEAR);
-
-			try {
-				date = sdf.parse(year + "/" + String.format("%02d", month) + "/16 0:00:00");
-			} catch (ParseException e) {
-				e.printStackTrace();
-			}
-		}
-
-		return date;
-	}
-
 	private BukkitRunnable getTask() {
 		return new BukkitRunnable() {
 			public void run() {
 
-				if (getRecreateMilliSecond() - System.currentTimeMillis() > 1000) {
+				if (TimeCalculateManager.getNextRecreate() - System.currentTimeMillis() > 500) {
 
 					if (plugin.config.logInConsole) {
 						plugin.getLogger()

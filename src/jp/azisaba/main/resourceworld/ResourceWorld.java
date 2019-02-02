@@ -166,8 +166,8 @@ public class ResourceWorld extends JavaPlugin {
 		world.getWorldBorder().setCenter(mvWorld.getSpawnLocation());
 
 		Location spawn = mvWorld.getSpawnLocation();
-		spawn.setX(0);
-		spawn.setZ(0);
+		spawn.setX(0.5);
+		spawn.setZ(0.5);
 
 		Location loc = getTopLocation(spawn);
 

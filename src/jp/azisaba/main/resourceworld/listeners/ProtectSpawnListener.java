@@ -298,6 +298,10 @@ public class ProtectSpawnListener implements Listener {
 			return;
 		}
 
+		if (e.getItem() == null) {
+			return;
+		}
+
 		if (e.getItem().getType() != Material.SIGN || !protectableMaterials.contains(e.getClickedBlock().getType())) {
 			return;
 		}

@@ -8,11 +8,13 @@ api-version: 1.13
 commands:
   resourceworld:
     aliases: ["rw", "resourcew", "rworld"]
-    usage: "/{LABEL} [recreate]"
+    usage: "/{LABEL} [recreate | protect | next]"
     permission: resourceworld.command.resourceworld
     permission-message: You dont have permission to perform this command.
 permissions:
   resourceworld.command.resourceworld:
+    default: true
+  resourceworld.command.resourceworld.admin:
     default: op
   resourceworld.centerprotect.bypass:
     default: op

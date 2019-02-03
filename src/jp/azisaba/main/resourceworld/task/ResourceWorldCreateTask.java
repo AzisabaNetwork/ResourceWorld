@@ -56,11 +56,13 @@ public class ResourceWorldCreateTask {
 
 				if (TimeCalculateManager.getNextRecreate() - System.currentTimeMillis() > 500) {
 
+					long wait = getWaitTicks() / 2;
+
 					if (plugin.config.logInConsole) {
 						plugin.getLogger()
-								.info("次の時刻確認タスクは " + (getWaitTicks() / 2) + " tick(s) 後に実行します。");
+								.info("次の時刻確認タスクは " + wait + " tick(s) 後に実行します。 (");
 					}
-					task = getTask().runTaskLater(plugin, getWaitTicks() / 2);
+					task = getTask().runTaskLater(plugin, wait);
 					return;
 				}
 
@@ -74,10 +76,6 @@ public class ResourceWorldCreateTask {
 								ChatColor.YELLOW + "[" + ChatColor.GREEN + "再生成システム" + ChatColor.YELLOW + "] "
 										+ ChatColor.RED + world.getWorldName() + ChatColor.GREEN + " の再生成に成功！");
 					}
-
-					//					if (world.getPortalName() != null) {
-					//						b = plugin.connectPortal(world.getPortalName(), world.getWorldName());
-					//					}
 				}
 
 				task = getTask().runTaskLater(plugin, 20 * 60 * 60);

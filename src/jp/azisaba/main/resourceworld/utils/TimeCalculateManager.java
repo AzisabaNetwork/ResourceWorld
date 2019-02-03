@@ -44,38 +44,76 @@ public class TimeCalculateManager {
 		return warn;
 	}
 
-	private static Date nextRecreateDate() {
+	public static Date nextRecreateDate() {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 		Date date = new Date();
 
 		Calendar calendar = Calendar.getInstance();
 
-		int year, month;
-		if (calendar.get(Calendar.DATE) > 15) {
+		int year = calendar.get(Calendar.YEAR);
+		int month = calendar.get(Calendar.MONTH) + 1;
+		int day = calendar.get(Calendar.DATE);
 
-			month = calendar.get(Calendar.MONTH) + 2;
-			year = calendar.get(Calendar.YEAR);
+		int attempt = 0;
+		while (true) {
 
-			if (month == 13) {
-				month = 1;
-				year += 1;
+			attempt++;
+
+			if (attempt > 100) {
+				return null;
 			}
 
+			if (day > 31) {
+				day = 1;
+				month++;
+			}
+
+			boolean isCorrectWeek = calendar.get(Calendar.WEEK_OF_MONTH) == 1
+					|| calendar.get(Calendar.WEEK_OF_MONTH) == 3;
+			boolean isSaturday = calendar.get(Calendar.DAY_OF_WEEK) == 7;
+
+			if (isCorrectWeek && isSaturday) {
+				break;
+			}
+
+			day += 1;
 			try {
-				date = sdf.parse(year + "/" + String.format("%02d", month) + "/01 0:00:00");
-			} catch (ParseException e) {
-				e.printStackTrace();
+				String dateStr = year + "/" + String.format("%02d", month) + "/" + String.format("%02d", day)
+						+ " 21:00:00";
+				date = sdf.parse(dateStr);
+			} catch (ParseException e1) {
+				e1.printStackTrace();
+				return null;
 			}
-		} else {
-			month = calendar.get(Calendar.MONTH) + 1;
-			year = calendar.get(Calendar.YEAR);
 
-			try {
-				date = sdf.parse(year + "/" + String.format("%02d", month) + "/16 0:00:00");
-			} catch (ParseException e) {
-				e.printStackTrace();
-			}
+			calendar.setTime(date);
 		}
+
+		//		if (calendar.get(Calendar.DATE) > 15) {
+		//
+		//			month = calendar.get(Calendar.MONTH) + 2;
+		//			year = calendar.get(Calendar.YEAR);
+		//
+		//			if (month == 13) {
+		//				month = 1;
+		//				year += 1;
+		//			}
+		//
+		//			try {
+		//				date = sdf.parse(year + "/" + String.format("%02d", month) + "/01 0:00:00");
+		//			} catch (ParseException e) {
+		//				e.printStackTrace();
+		//			}
+		//		} else {
+		//			month = calendar.get(Calendar.MONTH) + 1;
+		//			year = calendar.get(Calendar.YEAR);
+		//
+		//			try {
+		//				date = sdf.parse(year + "/" + String.format("%02d", month) + "/16 0:00:00");
+		//			} catch (ParseException e) {
+		//				e.printStackTrace();
+		//			}
+		//		}
 
 		return date;
 	}

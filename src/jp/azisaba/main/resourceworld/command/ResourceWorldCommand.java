@@ -56,7 +56,7 @@ public class ResourceWorldCommand implements CommandExecutor {
 			cal.setTime(next);
 
 			String dateStr = cal.get(Calendar.YEAR) + "年" + (cal.get(Calendar.MONTH) + 1) + "月" + cal.get(Calendar.DATE)
-					+ "日 " + cal.get(Calendar.HOUR) + "時";
+					+ "日 " + cal.get(Calendar.HOUR_OF_DAY) + "時";
 
 			sender.sendMessage(
 					prefix + ChatColor.GREEN + "次の再生成は " + ChatColor.RED + dateStr + ChatColor.GREEN + " です。");

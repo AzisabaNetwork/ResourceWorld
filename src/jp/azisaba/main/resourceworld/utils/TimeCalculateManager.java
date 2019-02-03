@@ -66,6 +66,11 @@ public class TimeCalculateManager {
 			if (day > 31) {
 				day = 1;
 				month++;
+
+				if (month > 12) {
+					month = 1;
+					year++;
+				}
 			}
 
 			boolean isCorrectWeek = calendar.get(Calendar.WEEK_OF_MONTH) == 1

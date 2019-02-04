@@ -1,7 +1,5 @@
 package jp.azisaba.main.resourceworld.utils;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
@@ -45,14 +43,7 @@ public class TimeCalculateManager {
 	}
 
 	public static Date nextRecreateDate() {
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-		Date date = new Date();
-
 		Calendar calendar = Calendar.getInstance();
-
-		int year = calendar.get(Calendar.YEAR);
-		int month = calendar.get(Calendar.MONTH) + 1;
-		int day = calendar.get(Calendar.DATE);
 
 		int attempt = 0;
 		while (true) {
@@ -63,16 +54,6 @@ public class TimeCalculateManager {
 				return null;
 			}
 
-			if (day > 31) {
-				day = 1;
-				month++;
-
-				if (month > 12) {
-					month = 1;
-					year++;
-				}
-			}
-
 			boolean isCorrectWeek = calendar.get(Calendar.WEEK_OF_MONTH) == 1
 					|| calendar.get(Calendar.WEEK_OF_MONTH) == 3;
 			boolean isSaturday = calendar.get(Calendar.DAY_OF_WEEK) == 7;
@@ -81,45 +62,9 @@ public class TimeCalculateManager {
 				break;
 			}
 
-			day += 1;
-			try {
-				String dateStr = year + "/" + String.format("%02d", month) + "/" + String.format("%02d", day)
-						+ " 21:00:00";
-				date = sdf.parse(dateStr);
-			} catch (ParseException e1) {
-				e1.printStackTrace();
-				return null;
-			}
-
-			calendar.setTime(date);
+			calendar.add(Calendar.DATE, 1);
 		}
 
-		//		if (calendar.get(Calendar.DATE) > 15) {
-		//
-		//			month = calendar.get(Calendar.MONTH) + 2;
-		//			year = calendar.get(Calendar.YEAR);
-		//
-		//			if (month == 13) {
-		//				month = 1;
-		//				year += 1;
-		//			}
-		//
-		//			try {
-		//				date = sdf.parse(year + "/" + String.format("%02d", month) + "/01 0:00:00");
-		//			} catch (ParseException e) {
-		//				e.printStackTrace();
-		//			}
-		//		} else {
-		//			month = calendar.get(Calendar.MONTH) + 1;
-		//			year = calendar.get(Calendar.YEAR);
-		//
-		//			try {
-		//				date = sdf.parse(year + "/" + String.format("%02d", month) + "/16 0:00:00");
-		//			} catch (ParseException e) {
-		//				e.printStackTrace();
-		//			}
-		//		}
-
-		return date;
+		return calendar.getTime();
 	}
 }

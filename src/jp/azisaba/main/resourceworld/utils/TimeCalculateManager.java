@@ -65,6 +65,8 @@ public class TimeCalculateManager {
 			calendar.add(Calendar.DATE, 1);
 		}
 
+		calendar.set(Calendar.HOUR_OF_DAY, 21);
+
 		return calendar.getTime();
 	}
 }

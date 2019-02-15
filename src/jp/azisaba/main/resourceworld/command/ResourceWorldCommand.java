@@ -6,9 +6,11 @@ import java.util.Date;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 import jp.azisaba.main.resourceworld.ProtectManager;
 import jp.azisaba.main.resourceworld.ResourceWorld;
+import jp.azisaba.main.resourceworld.task.SpawnPointTaskManager;
 import jp.azisaba.main.resourceworld.utils.TimeCalculateManager;
 import net.md_5.bungee.api.ChatColor;
 
@@ -41,6 +43,24 @@ public class ResourceWorldCommand implements CommandExecutor {
 
 			sender.sendMessage(
 					prefix + ChatColor.GREEN + "資源の中心保護を" + ChatColor.YELLOW + b + ChatColor.GREEN + "にしました。");
+			return true;
+		}
+
+		if (args[0].equalsIgnoreCase("seichi") && sender.hasPermission("resourceworld.command.resourceworld.admin")) {
+
+			if (!(sender instanceof Player)) {
+				sender.sendMessage(ChatColor.RED + "Consoleはサポートしていません");
+				return true;
+			}
+
+			Player p = (Player) sender;
+
+			if (!p.getWorld().getName().equalsIgnoreCase("resource")) {
+				p.sendMessage(ChatColor.RED + "このワールドでは実行できません！");
+				return true;
+			}
+
+			SpawnPointTaskManager.runTask(p, p.getWorld());
 			return true;
 		}
 

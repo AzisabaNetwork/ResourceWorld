@@ -21,6 +21,7 @@ import jp.azisaba.main.resourceworld.command.ResourceWorldCommand;
 import jp.azisaba.main.resourceworld.listeners.ProtectSpawnListener;
 import jp.azisaba.main.resourceworld.task.BroadcastWarningTask;
 import jp.azisaba.main.resourceworld.task.ResourceWorldCreateTask;
+import jp.azisaba.main.resourceworld.task.SpawnPointTaskManager;
 
 public class ResourceWorld extends JavaPlugin {
 
@@ -44,6 +45,8 @@ public class ResourceWorld extends JavaPlugin {
 			warningTask = new BroadcastWarningTask(this);
 			warningTask.runTask();
 		}
+
+		SpawnPointTaskManager.init(this);
 
 		Bukkit.getPluginCommand("resourceworld").setExecutor(new ResourceWorldCommand(this));
 

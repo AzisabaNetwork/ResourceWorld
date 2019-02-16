@@ -36,12 +36,14 @@ public class BroadcastWarningTask {
 		return new BukkitRunnable() {
 			public void run() {
 
+				long waitTicks = getWaitTicks() / 2;
+
 				if (TimeCalculateManager.getNextWarn() - System.currentTimeMillis() > 500) {
 					if (plugin.config.logInConsole) {
 						plugin.getLogger()
-								.info("次の時刻確認タスクを " + (getWaitTicks() / 2) + " tick(s) 後に実行します。");
+								.info("次の時刻確認タスクを " + waitTicks + " tick(s) 後に実行します。");
 					}
-					task = getTask().runTaskLater(plugin, getWaitTicks() / 2);
+					task = getTask().runTaskLater(plugin, waitTicks);
 					return;
 				}
 
@@ -87,14 +89,13 @@ public class BroadcastWarningTask {
 		};
 	}
 
-	private int getWaitTicks() {
+	private long getWaitTicks() {
 		long nextWarn = TimeCalculateManager.getNextWarn();
 		long now = System.currentTimeMillis();
 
-		double distance = (double) (nextWarn - now);
-		double seconds = distance / 1000;
+		long seconds = (long) Math.ceil((nextWarn - now) / 1000L);
 
-		return (int) (seconds * 20);
+		return seconds * 20L;
 	}
 
 	private String convertToStringFromDate(Date date) {

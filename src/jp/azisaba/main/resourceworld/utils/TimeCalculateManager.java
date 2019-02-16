@@ -54,8 +54,8 @@ public class TimeCalculateManager {
 				return null;
 			}
 
-			boolean isCorrectWeek = calendar.get(Calendar.WEEK_OF_MONTH) == 1
-					|| calendar.get(Calendar.WEEK_OF_MONTH) == 3;
+			int week = calendar.get(Calendar.WEEK_OF_MONTH);
+			boolean isCorrectWeek = week == 1 || week == 3;
 			boolean isSaturday = calendar.get(Calendar.DAY_OF_WEEK) == 7;
 
 			if (isCorrectWeek && isSaturday) {
@@ -66,6 +66,9 @@ public class TimeCalculateManager {
 		}
 
 		calendar.set(Calendar.HOUR_OF_DAY, 21);
+		calendar.set(Calendar.MINUTE, 0);
+		calendar.set(Calendar.SECOND, 0);
+		calendar.set(Calendar.MILLISECOND, 0);
 
 		return calendar.getTime();
 	}

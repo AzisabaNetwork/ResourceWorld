@@ -27,11 +27,13 @@ public class ResourceWorldCreateTask {
 
 	public void runTask() {
 
+		long wait = getWaitTicks() / 2;
+
 		if (plugin.config.logInConsole) {
-			plugin.getLogger().info("次の時刻確認タスクを " + (getWaitTicks() / 2) + " tick(s) 後に実行します。");
+			plugin.getLogger().info("次の時刻確認タスクを " + wait + " tick(s) 後に実行します。");
 		}
 
-		task = getTask().runTaskLater(plugin, getWaitTicks() / 2);
+		task = getTask().runTaskLater(plugin, wait);
 	}
 
 	public void stopTask() {
@@ -40,14 +42,14 @@ public class ResourceWorldCreateTask {
 		}
 	}
 
-	private int getWaitTicks() {
+	private long getWaitTicks() {
 		long nextRecreate = TimeCalculateManager.getNextRecreate();
 		long now = System.currentTimeMillis();
 
-		double distance = (double) (nextRecreate - now);
-		double seconds = distance / 1000;
+		long after = nextRecreate - now;
+		long seconds = (long) Math.ceil(after / 1000L);
 
-		return (int) (seconds * 20);
+		return (long) (seconds * 20);
 	}
 
 	private BukkitRunnable getTask() {

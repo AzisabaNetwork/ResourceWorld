@@ -55,15 +55,19 @@ public class ResourceWorldCreateTask {
 		return new BukkitRunnable() {
 			public void run() {
 
-				if (TimeCalculateManager.getNextRecreate() - System.currentTimeMillis() > 500) {
+				if (TimeCalculateManager.getNextRecreate() - System.currentTimeMillis() > 1000) {
 
-					long wait = getWaitTicks() / 2;
+					long waitTicks = getWaitTicks() / 2;
+
+					if (waitTicks <= 0) {
+						waitTicks = 1;
+					}
 
 					if (plugin.config.logInConsole) {
 						plugin.getLogger()
-								.info("次の時刻確認タスクは " + wait + " tick(s) 後に実行します。 (");
+								.info("次の時刻確認タスクは " + waitTicks + " tick(s) 後に実行します。 ");
 					}
-					task = getTask().runTaskLater(plugin, wait);
+					task = getTask().runTaskLater(plugin, waitTicks);
 					return;
 				}
 

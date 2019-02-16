@@ -38,7 +38,12 @@ public class BroadcastWarningTask {
 
 				long waitTicks = getWaitTicks() / 2;
 
-				if (TimeCalculateManager.getNextWarn() - System.currentTimeMillis() > 500) {
+				if (TimeCalculateManager.getNextWarn() - System.currentTimeMillis() > 1000) {
+
+					if (waitTicks <= 0) {
+						waitTicks = 1;
+					}
+
 					if (plugin.config.logInConsole) {
 						plugin.getLogger()
 								.info("次の時刻確認タスクを " + waitTicks + " tick(s) 後に実行します。");

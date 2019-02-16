@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import org.bukkit.plugin.AuthorNagException;
+import org.bukkit.Bukkit;
 
 public class TimeCalculateManager {
 
@@ -36,7 +36,8 @@ public class TimeCalculateManager {
 		}
 
 		if (warn <= 0) {
-			throw new AuthorNagException("Next warn become minus value. (wran=" + warn + ")");
+			Bukkit.getLogger().warning("Next warn become minus value. (wran=" + warn + ") set value to 0.");
+			warn = 0;
 		}
 
 		return warn;

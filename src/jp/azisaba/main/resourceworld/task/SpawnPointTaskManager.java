@@ -49,42 +49,15 @@ public class SpawnPointTaskManager {
 				for (int z = -25; z <= 25; z++) {
 
 					Location loc = new Location(world, x, y, z);
+					Material type = getTypeFromLocation(loc);
 
-					if (loc.getX() == 0 && loc.getY() == 62 && loc.getZ() == 0) {
-
-						if (loc.getBlock().getType() == Material.OBSIDIAN) {
-							continue;
-						}
-
-						locList.add(loc);
-					}
-
-					if ((61 <= loc.getY() && loc.getY() <= 62)) {
-
-						if (loc.getBlock().getType() == Material.STONE) {
-							continue;
-						}
-
-						locList.add(loc);
+					if (loc.getBlock().getType() == Material.VOID_AIR && type == Material.AIR) {
 						continue;
 					}
 
-					if ((loc.getY() >= 17 && loc.getY() <= 60
-							&& (Math.abs(loc.getX()) == 25 || Math.abs(loc.getZ()) == 25)) || loc.getY() == 10) {
-
-						if (loc.getBlock().getType() == Material.GLASS) {
-							continue;
-						}
-
+					if (loc.getBlock().getType() != type) {
 						locList.add(loc);
-						continue;
 					}
-
-					if (loc.getBlock().getType() == Material.AIR || loc.getBlock().getType() == Material.VOID_AIR) {
-						continue;
-					}
-
-					locList.add(loc);
 				}
 			}
 		}
@@ -125,18 +98,11 @@ public class SpawnPointTaskManager {
 					}
 
 					Location loc = blocks.get(processed);
-					Material type = Material.AIR;
+					Material type = getTypeFromLocation(loc);
 
-					if (loc.getX() == 0 && loc.getY() == 62 && loc.getZ() == 0) {
-						type = Material.OBSIDIAN;
-					} else if (loc.getY() == 10 || (loc.getY() >= 17 && loc.getY() <= 60
-							&& (Math.abs(loc.getX()) == 25 || Math.abs(loc.getZ()) == 25))) {
-						type = Material.GLASS;
-					} else if (61 <= loc.getY() && loc.getY() <= 62) {
-						type = Material.STONE;
+					if (type != null) {
+						loc.getBlock().setType(type);
 					}
-
-					loc.getBlock().setType(type);
 				}
 
 				blocks = blocks.subList(processed, blocks.size());
@@ -162,6 +128,21 @@ public class SpawnPointTaskManager {
 				}
 			}
 		}.runTaskTimer(plugin, 0, 5);
+	}
+
+	private static Material getTypeFromLocation(Location loc) {
+		if (loc.getX() == 0 && loc.getY() == 62 && loc.getZ() == 0) {
+			return Material.OBSIDIAN;
+		} else if (61 <= loc.getY() && loc.getY() <= 62) {
+			return Material.STONE;
+		} else if ((loc.getY() >= 17 && loc.getY() <= 60
+				&& (Math.abs(loc.getX()) == 25 || Math.abs(loc.getZ()) == 25)) || loc.getY() == 10) {
+			return Material.GLASS;
+		} else if (Math.abs(loc.getX()) <= 25 && Math.abs(loc.getZ()) <= 25) {
+			return Material.AIR;
+		}
+
+		return null;
 	}
 
 	private static void sort(List<Location> locList) {

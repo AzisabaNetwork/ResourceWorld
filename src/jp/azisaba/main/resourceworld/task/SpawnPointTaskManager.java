@@ -134,7 +134,14 @@ public class SpawnPointTaskManager {
 				blocks = blocks.subList(processed, blocks.size());
 
 				if (player != null) {
-					double percentage = ((double) (blockCount - blocks.size()) / (double) blockCount) * 100d;
+					double percentage;
+
+					if (blockCount != 0) {
+						percentage = ((double) (blockCount - blocks.size()) / (double) blockCount) * 100d;
+					} else {
+						percentage = 100;
+					}
+
 					int ceil = (int) Math.ceil(percentage);
 
 					String meter = ChatColor.GREEN + StringUtils.repeat("｜", ceil) + ChatColor.WHITE

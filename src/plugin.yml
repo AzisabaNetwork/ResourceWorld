@@ -1,6 +1,6 @@
 name: ResourceWorld
 main: jp.azisaba.main.resourceworld.ResourceWorld
-version: 1.2.2
+version: 1.2.3
 author: siloneco
 description: "Auto regenerate resource world."
 softdepend: [WorldEdit, FastAsyncWorldEdit]

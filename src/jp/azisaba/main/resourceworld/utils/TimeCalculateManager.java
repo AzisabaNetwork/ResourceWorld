@@ -45,6 +45,10 @@ public class TimeCalculateManager {
 	public static Date nextRecreateDate() {
 		Calendar calendar = Calendar.getInstance();
 
+		if (calendar.get(Calendar.HOUR_OF_DAY) >= 21) {
+			calendar.add(Calendar.DATE, 1);
+		}
+
 		int attempt = 0;
 		while (true) {
 

@@ -76,33 +76,6 @@ public class ResourceWorld extends JavaPlugin {
 		}
 	}
 
-	//	public boolean connectPortal(String portalName, String worldName) {
-	//
-	//		if (!isEnablePortalPlugin()) {
-	//			getLogger().warning("AdvancedPortals Pluginがロードされていないためポータルが接続できませんでした。");
-	//			return false;
-	//		}
-	//
-	//		AdvancedPortalsPlugin ap = (AdvancedPortalsPlugin) Bukkit.getPluginManager().getPlugin("AdvancedPortals");
-	//
-	//		MultiversePortals mvp = (MultiversePortals) Bukkit.getPluginManager().getPlugin("Multiverse-Portals");
-	//		MVPortal portal = mvp.getPortalManager().getPortal(portalName);
-	//
-	//		if (portal == null) {
-	//			getLogger().warning(portalName + " という名前のポータルがみつかりません。");
-	//			return false;
-	//		}
-	//
-	//		boolean success = portal.setProperty("dest", "w:" + worldName);
-	//
-	//		if (!success) {
-	//			getLogger().warning("ポータルの接続に失敗。");
-	//		} else {
-	//			getLogger().info("ポータルの接続に成功。");
-	//		}
-	//		return success;
-	//	}
-
 	public void recreateAllResourceWorlds() {
 		if (createTask != null) {
 			createTask.stopTask();
@@ -173,6 +146,8 @@ public class ResourceWorld extends JavaPlugin {
 		spawn.setZ(0.5);
 
 		Location loc = getTopLocation(spawn);
+
+		mvWorld.setAdjustSpawn(false);
 
 		if (createWorld.getEnvironment() == Environment.NORMAL) {
 			mvWorld.setSpawnLocation(loc);

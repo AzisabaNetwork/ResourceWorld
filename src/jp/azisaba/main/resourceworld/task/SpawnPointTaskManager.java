@@ -50,6 +50,15 @@ public class SpawnPointTaskManager {
 
 					Location loc = new Location(world, x, y, z);
 
+					if (loc.getX() == 0 && loc.getY() == 62 && loc.getZ() == 0) {
+
+						if (loc.getBlock().getType() == Material.OBSIDIAN) {
+							continue;
+						}
+
+						locList.add(loc);
+					}
+
 					if ((61 <= loc.getY() && loc.getY() <= 62)) {
 
 						if (loc.getBlock().getType() == Material.STONE) {

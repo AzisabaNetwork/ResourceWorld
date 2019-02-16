@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -49,13 +50,23 @@ public class SpawnPointTaskManager {
 
 					Location loc = new Location(world, x, y, z);
 
-					if ((60 <= loc.getY() && loc.getY() <= 62) || loc.getY() == 10) {
+					if ((61 <= loc.getY() && loc.getY() <= 62)) {
+
+						if (loc.getBlock().getType() == Material.STONE) {
+							continue;
+						}
+
 						locList.add(loc);
 						continue;
 					}
 
 					if ((loc.getY() >= 17 && loc.getY() <= 60
-							&& (Math.abs(loc.getX()) == 25 || Math.abs(loc.getZ()) == 25))) {
+							&& (Math.abs(loc.getX()) == 25 || Math.abs(loc.getZ()) == 25)) || loc.getY() == 10) {
+
+						if (loc.getBlock().getType() == Material.GLASS) {
+							continue;
+						}
+
 						locList.add(loc);
 						continue;
 					}
@@ -123,8 +134,15 @@ public class SpawnPointTaskManager {
 				blocks = blocks.subList(processed, blocks.size());
 
 				if (player != null) {
-					double percentage = (double) (blockCount - blocks.size()) / (double) blockCount;
-					JSONMessage.create(ChatColor.GREEN + "" + String.format("%.2f", percentage * 100d) + "% completed.")
+					double percentage = ((double) (blockCount - blocks.size()) / (double) blockCount) * 100d;
+					int ceil = (int) Math.ceil(percentage);
+
+					String meter = ChatColor.GREEN + StringUtils.repeat("｜", ceil) + ChatColor.WHITE
+							+ StringUtils.repeat("｜", 100 - ceil);
+					JSONMessage
+							.create(meter + ChatColor.YELLOW + " / " + ChatColor.GREEN + ""
+									+ String.format("%.2f", percentage)
+									+ "%")
 							.actionbar(player);
 				}
 			}
@@ -133,9 +151,9 @@ public class SpawnPointTaskManager {
 
 	private static void sort(List<Location> locList) {
 		Collections.sort(locList, (loc1, loc2) -> ComparisonChain.start()
-				.compare(loc1.getY(), loc2.getY())
 				.compare(loc1.getX(), loc2.getX())
 				.compare(loc1.getZ(), loc2.getZ())
+				.compare(loc1.getY(), loc2.getY())
 				.result());
 	}
 }

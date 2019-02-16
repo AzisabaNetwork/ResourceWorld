@@ -150,7 +150,7 @@ public class ResourceWorld extends JavaPlugin {
 		mvWorld.setAdjustSpawn(false);
 
 		if (createWorld.getEnvironment() == Environment.NORMAL) {
-			mvWorld.setSpawnLocation(loc);
+			//			mvWorld.setSpawnLocation(loc);
 			mvWorld.getCBWorld().setSpawnLocation(loc);
 
 			createFloor(loc, Material.STONE);
@@ -200,11 +200,13 @@ public class ResourceWorld extends JavaPlugin {
 		loc = loc.clone();
 		loc.setY(257);
 
-		while (loc.getBlock().getType() == Material.AIR) {
-			loc.setY(loc.getY() - 1);
+		while (loc.getBlock().getType() == Material.AIR || loc.getBlock().getType() == Material.VOID_AIR) {
+			loc.subtract(0, 1, 0);
 		}
 
-		loc.add(0, 1, 0);
+		loc.add(0.5, 1, 0.5);
+		loc.setPitch(0);
+		loc.setYaw(0);
 		return loc;
 	}
 

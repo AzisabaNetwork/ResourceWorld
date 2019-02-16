@@ -3,12 +3,15 @@ package jp.azisaba.main.resourceworld.command;
 import java.util.Calendar;
 import java.util.Date;
 
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import jp.azisaba.main.resourceworld.ProtectManager;
+import jp.azisaba.main.resourceworld.RecreateWorld;
 import jp.azisaba.main.resourceworld.ResourceWorld;
 import jp.azisaba.main.resourceworld.task.SpawnPointTaskManager;
 import jp.azisaba.main.resourceworld.utils.TimeCalculateManager;
@@ -32,8 +35,7 @@ public class ResourceWorldCommand implements CommandExecutor {
 		}
 
 		if (args[0].equalsIgnoreCase("recreate") && sender.hasPermission("resourceworld.command.resourceworld.admin")) {
-			plugin.recreateAllResourceWorlds();
-			sender.sendMessage(prefix + ChatColor.GREEN + "再生成が完了しました！");
+			recreateWorlds();
 			return true;
 		}
 
@@ -93,5 +95,24 @@ public class ResourceWorldCommand implements CommandExecutor {
 		} else {
 			sender.sendMessage(ChatColor.RED + "使い方: /" + label + " next");
 		}
+	}
+
+	private void recreateWorlds() {
+		new BukkitRunnable() {
+			public void run() {
+
+				for (RecreateWorld world : plugin.config.createWorldList) {
+
+					boolean b = plugin.recreateResourceWorld(world);
+
+					if (b && plugin.config.logInConsole) {
+						plugin.getLogger().info(world.getWorldName() + "の生成に成功。");
+						Bukkit.broadcastMessage(
+								ChatColor.YELLOW + "[" + ChatColor.GREEN + "再生成システム" + ChatColor.YELLOW + "] "
+										+ ChatColor.RED + world.getWorldName() + ChatColor.GREEN + " の再生成に成功！");
+					}
+				}
+			}
+		}.runTaskLater(plugin, 1L);
 	}
 }

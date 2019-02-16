@@ -116,19 +116,18 @@ public class SpawnPointTaskManager {
 					}
 
 					Location loc = blocks.get(processed);
+					Material type = Material.AIR;
 
-					if (loc.getY() == 10 || (loc.getY() >= 17 && loc.getY() <= 60
+					if (loc.getX() == 0 && loc.getY() == 62 && loc.getZ() == 0) {
+						type = Material.OBSIDIAN;
+					} else if (loc.getY() == 10 || (loc.getY() >= 17 && loc.getY() <= 60
 							&& (Math.abs(loc.getX()) == 25 || Math.abs(loc.getZ()) == 25))) {
-						loc.getBlock().setType(Material.GLASS);
-						continue;
+						type = Material.GLASS;
+					} else if (61 <= loc.getY() && loc.getY() <= 62) {
+						type = Material.STONE;
 					}
 
-					if (61 <= loc.getY() && loc.getY() <= 62) {
-						loc.getBlock().setType(Material.STONE);
-						continue;
-					}
-
-					loc.getBlock().setType(Material.AIR);
+					loc.getBlock().setType(type);
 				}
 
 				blocks = blocks.subList(processed, blocks.size());

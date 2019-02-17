@@ -135,8 +135,17 @@ public class SpawnPointTaskManager {
 			return Material.OBSIDIAN;
 		} else if (61 <= loc.getY() && loc.getY() <= 62) {
 			return Material.STONE;
+		} else if (loc.getY() == 10 && (loc.getZ() >= -6 && loc.getZ() <= -4)
+				&& (loc.getX() >= -6 && loc.getX() <= -4)) {
+			return Material.DIAMOND_BLOCK;
+		} else if (loc.getY() == 10 && Math.abs(loc.getX()) % 5 == 0 && Math.abs(loc.getZ()) % 5 == 0) {
+			return Material.SEA_LANTERN;
 		} else if ((loc.getY() >= 17 && loc.getY() <= 60
 				&& (Math.abs(loc.getX()) == 25 || Math.abs(loc.getZ()) == 25)) || loc.getY() == 10) {
+			return Material.GLASS;
+		} else if (loc.getY() >= 15 && loc.getY() <= 60 && loc.getX() >= -7 && loc.getX() <= -3 && loc.getZ() >= -7
+				&& loc.getZ() <= -3 && !((loc.getZ() >= -6 && loc.getZ() <= -4)
+						&& (loc.getX() >= -6 && loc.getX() <= -4))) {
 			return Material.GLASS;
 		} else if (Math.abs(loc.getX()) <= 25 && Math.abs(loc.getZ()) <= 25) {
 			return Material.AIR;

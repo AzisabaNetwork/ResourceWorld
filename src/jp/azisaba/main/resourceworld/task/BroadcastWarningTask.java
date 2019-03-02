@@ -107,7 +107,8 @@ public class BroadcastWarningTask {
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(date);
 
-		if (cal.get(Calendar.HOUR_OF_DAY) == 23 && cal.get(Calendar.MINUTE) < 1) {
+		if ((cal.get(Calendar.HOUR_OF_DAY) == 23 && cal.get(Calendar.MINUTE) <= 0)
+				|| (cal.get(Calendar.HOUR_OF_DAY) == 22 && cal.get(Calendar.MINUTE) >= 59)) {
 			return "1時間";
 		} else if (cal.get(Calendar.MINUTE) == 30) {
 			return "30分";

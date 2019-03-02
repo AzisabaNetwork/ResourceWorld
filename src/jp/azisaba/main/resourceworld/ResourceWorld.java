@@ -68,7 +68,15 @@ public class ResourceWorld extends JavaPlugin {
 				return generateNormally(createWorld);
 			}
 
-			return generateWithMultiverse(createWorld);
+			MVWorldManager manager = ((MultiverseCore) Bukkit.getPluginManager().getPlugin("Multiverse-Core"))
+					.getMVWorldManager();
+
+			MultiverseWorld world = manager.getMVWorld(createWorld.getWorldName() + "-ready");
+			if (world == null) {
+				return generateWithMultiverse(createWorld);
+			} else {
+				return moveWolrdWithMultiverse(createWorld);
+			}
 
 		} else {
 
@@ -180,6 +188,22 @@ public class ResourceWorld extends JavaPlugin {
 		return true;
 	}
 
+	private boolean moveWolrdWithMultiverse(RecreateWorld createWorld) {
+		MVWorldManager manager = ((MultiverseCore) Bukkit.getPluginManager().getPlugin("Multiverse-Core"))
+				.getMVWorldManager();
+
+		MultiverseWorld before = manager.getMVWorld(createWorld.getWorldName() + "-ready");
+		if (before == null) {
+			return false;
+		}
+
+		manager.cloneWorld(before.getName(), createWorld.getWorldName());
+		manager.deleteWorld(before.getName(), false, true);
+		manager.removeWorldFromConfig(before.getName());
+
+		return true;
+	}
+
 	private World generateWorld(String worldName, Environment env) {
 		WorldCreator creator = new WorldCreator(worldName);
 		creator.environment(env);
@@ -191,10 +215,6 @@ public class ResourceWorld extends JavaPlugin {
 	private boolean isEnableMultiverse() {
 		return Bukkit.getPluginManager().getPlugin("Multiverse-Core") != null;
 	}
-
-	//	private boolean isEnablePortalPlugin() {
-	//		return Bukkit.getPluginManager().getPlugin("AdvancedPortals") != null;
-	//	}
 
 	private Location getTopLocation(Location loc) {
 		loc = loc.clone();

@@ -10,7 +10,8 @@ import org.bukkit.Bukkit;
 
 public class TimeCalculateManager {
 
-	private static List<Integer> warnSecList = Arrays.asList(10, 30, 60, 180, 300, 600, 60 * 30, 60 * 60);
+	private static List<Integer> warnSecList = Arrays.asList(1, 2, 3, 4, 5, 10, 30, 60, 180, 300, 600, 60 * 30,
+			60 * 60);
 
 	static {
 		Collections.sort(warnSecList);
@@ -76,5 +77,34 @@ public class TimeCalculateManager {
 		calendar.set(Calendar.MILLISECOND, 0);
 
 		return calendar.getTime();
+	}
+
+	public static String convertToWarningStringFromDate(Date date) {
+		Calendar nextWarn = Calendar.getInstance();
+		nextWarn.setTime(date);
+
+		long nextRecreate = getNextRecreate();
+
+		int attempt = 0;
+		for (int i : warnSecList) {
+			attempt++;
+			if (nextRecreate - ((long) i * 1000L) == date.getTime()) {
+				return convertToStringFromAttempt(attempt);
+			}
+		}
+
+		return null;
+	}
+
+	private static String convertToStringFromAttempt(int i) {
+		long l = warnSecList.get(i - 1);
+
+		if (l < 60) {
+			return l + "秒";
+		} else if (l < 3600) {
+			return (l / 60) + "分";
+		} else {
+			return (l / 3600) + "時間";
+		}
 	}
 }

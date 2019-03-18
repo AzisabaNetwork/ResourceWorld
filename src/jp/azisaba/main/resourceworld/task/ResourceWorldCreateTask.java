@@ -46,9 +46,8 @@ public class ResourceWorldCreateTask {
 		long nextRecreate = TimeCalculateManager.getNextRecreate();
 		long now = System.currentTimeMillis();
 
-		long seconds = (long) Math.ceil((nextRecreate - now) / 1000L);
-
-		return seconds * 20L;
+		double seconds = (double) (nextRecreate - now) / 1000;
+		return (long) Math.floor(seconds * 20L);
 	}
 
 	private BukkitRunnable getTask() {

@@ -15,6 +15,8 @@ import jp.azisaba.main.resourceworld.utils.TimeCalculateManager;
 public class BroadcastWarningTask {
 
 	private ResourceWorld plugin;
+	private long last = 0L;
+	private boolean skipIfSameAsLast = false;
 
 	private BukkitTask task;
 
@@ -36,7 +38,18 @@ public class BroadcastWarningTask {
 		return new BukkitRunnable() {
 			public void run() {
 
-				long waitTicks = getWaitTicks() / 2;
+				long nextWarn = TimeCalculateManager.getNextWarn();
+				if (skipIfSameAsLast) {
+					if (last == nextWarn) {
+						task = getTask().runTaskLater(plugin, 1);
+						return;
+					} else {
+						skipIfSameAsLast = false;
+					}
+				}
+
+				long waitTicks = getWaitTicks(nextWarn) / 2;
+				last = nextWarn;
 
 				if (TimeCalculateManager.getNextWarn() - System.currentTimeMillis() > 1000) {
 
@@ -57,73 +70,29 @@ public class BroadcastWarningTask {
 				Calendar cal = Calendar.getInstance();
 				cal.setTime(next);
 
-				if (cal.get(Calendar.SECOND) == 55) {
+				String converted = TimeCalculateManager.convertToWarningStringFromDate(next);
 
-					new BukkitRunnable() {
-
-						int sec = 5;
-
-						public void run() {
-							Bukkit.broadcastMessage(plugin.config.chatPrefix
-									+ plugin.config.chatWarning.replace("{TIME}", sec + "秒"));
-							for (Player p : Bukkit.getOnlinePlayers()) {
-								p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);
-							}
-
-							sec--;
-
-							if (sec == 0) {
-								this.cancel();
-
-								task = getTask().runTaskLater(plugin, 20);
-							}
-						}
-					}.runTaskTimer(plugin, 0, 20);
-
+				if (converted == null) {
+					task = getTask().runTaskLater(plugin, 20);
 					return;
-				} else {
-					Bukkit.broadcastMessage(plugin.config.chatPrefix
-							+ plugin.config.chatWarning.replace("{TIME}", convertToStringFromDate(next)));
-					for (Player p : Bukkit.getOnlinePlayers()) {
-						p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);
-					}
 				}
 
-				task = getTask().runTaskLater(plugin, 25);
+				Bukkit.broadcastMessage(
+						plugin.config.chatPrefix + plugin.config.chatWarning.replace("{TIME}", converted));
+				for (Player p : Bukkit.getOnlinePlayers()) {
+					p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);
+				}
+
+				task = getTask().runTaskLater(plugin, 1);
+				skipIfSameAsLast = true;
 			}
 		};
 	}
 
-	private long getWaitTicks() {
-		long nextWarn = TimeCalculateManager.getNextWarn();
+	private long getWaitTicks(long nextWarn) {
 		long now = System.currentTimeMillis();
 
-		long seconds = (long) Math.ceil((nextWarn - now) / 1000L);
-
-		return seconds * 20L;
-	}
-
-	private String convertToStringFromDate(Date date) {
-		Calendar cal = Calendar.getInstance();
-		cal.setTime(date);
-
-		if ((cal.get(Calendar.HOUR_OF_DAY) == 23 && cal.get(Calendar.MINUTE) <= 0)
-				|| (cal.get(Calendar.HOUR_OF_DAY) == 22 && cal.get(Calendar.MINUTE) >= 59)) {
-			return "1時間";
-		} else if (cal.get(Calendar.MINUTE) == 30) {
-			return "30分";
-		} else if (cal.get(Calendar.MINUTE) == 45) {
-			return "15分";
-		} else if (cal.get(Calendar.MINUTE) == 50) {
-			return "10分";
-		} else if (cal.get(Calendar.MINUTE) == 55) {
-			return "5分";
-		} else if (cal.get(Calendar.MINUTE) == 57) {
-			return "3分";
-		} else if (cal.get(Calendar.MINUTE) == 59 && cal.get(Calendar.SECOND) <= 5) {
-			return "1分";
-		}
-
-		return (60 - cal.get(Calendar.SECOND)) + "秒";
+		double seconds = (double) (nextWarn - now) / 1000;
+		return (long) Math.floor(seconds * 20L);
 	}
 }

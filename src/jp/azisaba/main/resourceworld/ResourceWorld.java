@@ -18,7 +18,6 @@ import com.onarandombox.MultiverseCore.api.MVWorldManager;
 import com.onarandombox.MultiverseCore.api.MultiverseWorld;
 
 import jp.azisaba.main.resourceworld.command.ResourceWorldCommand;
-import jp.azisaba.main.resourceworld.listeners.CreateSafetySpawnListener;
 import jp.azisaba.main.resourceworld.listeners.ProtectSpawnListener;
 import jp.azisaba.main.resourceworld.task.BroadcastWarningTask;
 import jp.azisaba.main.resourceworld.task.ResourceWorldCreateTask;
@@ -53,7 +52,7 @@ public class ResourceWorld extends JavaPlugin {
 		Bukkit.getPluginCommand("resourceworld").setExecutor(new ResourceWorldCommand(this));
 
 		Bukkit.getPluginManager().registerEvents(new ProtectSpawnListener(this, config.createWorldList), this);
-		Bukkit.getPluginManager().registerEvents(new CreateSafetySpawnListener(this, config.createWorldList), this);
+//		Bukkit.getPluginManager().registerEvents(new CreateSafetySpawnListener(this, config.createWorldList), this);
 
 		Bukkit.getLogger().info(PLUGIN_NAME + " enabled.");
 	}

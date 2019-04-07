@@ -18,10 +18,12 @@ import com.onarandombox.MultiverseCore.api.MVWorldManager;
 import com.onarandombox.MultiverseCore.api.MultiverseWorld;
 
 import jp.azisaba.main.resourceworld.command.ResourceWorldCommand;
+import jp.azisaba.main.resourceworld.listeners.CreateSafetySpawnListener;
 import jp.azisaba.main.resourceworld.listeners.ProtectSpawnListener;
 import jp.azisaba.main.resourceworld.task.BroadcastWarningTask;
 import jp.azisaba.main.resourceworld.task.ResourceWorldCreateTask;
 import jp.azisaba.main.resourceworld.task.SpawnPointTaskManager;
+import jp.azisaba.main.resourceworld.utils.Safety;
 
 public class ResourceWorld extends JavaPlugin {
 
@@ -51,6 +53,7 @@ public class ResourceWorld extends JavaPlugin {
 		Bukkit.getPluginCommand("resourceworld").setExecutor(new ResourceWorldCommand(this));
 
 		Bukkit.getPluginManager().registerEvents(new ProtectSpawnListener(this, config.createWorldList), this);
+		Bukkit.getPluginManager().registerEvents(new CreateSafetySpawnListener(this, config.createWorldList), this);
 
 		Bukkit.getLogger().info(PLUGIN_NAME + " enabled.");
 	}
@@ -158,28 +161,20 @@ public class ResourceWorld extends JavaPlugin {
 		mvWorld.setAdjustSpawn(false);
 
 		if (createWorld.getEnvironment() == Environment.NORMAL) {
-			//			mvWorld.setSpawnLocation(loc);
+			loc.setY(63);
 			mvWorld.getCBWorld().setSpawnLocation(loc);
 
-			createFloor(loc, Material.STONE);
-			createSpace(loc);
+			Safety.createFloor(loc, Material.STONE, createWorld.getProtect(), createWorld.getProtect());
+			Safety.createSpace(loc, createWorld.getProtect(), 20, createWorld.getProtect());
 		} else if (createWorld.getEnvironment() == Environment.NETHER) {
 			loc = mvWorld.getSpawnLocation();
 
-			loc.setY(0);
-
-			while (loc.getBlock().getType() != Material.AIR) {
-				loc.add(0, 1, 0);
-			}
-
-			if (loc.getY() >= 128) {
-				loc.setY(32);
-			}
+			loc.setY(32);
 
 			mvWorld.setSpawnLocation(loc);
 
-			createFloor(loc, Material.NETHERRACK);
-			createSpace(loc);
+			Safety.createFloor(loc, Material.NETHERRACK, createWorld.getProtect(), createWorld.getProtect());
+			Safety.createSpace(loc, createWorld.getProtect(), 5, createWorld.getProtect());
 		} else if (createWorld.getEnvironment() == Environment.THE_END) {
 
 			Location check = new Location(world, 5, 70, 5);
@@ -228,43 +223,5 @@ public class ResourceWorld extends JavaPlugin {
 		loc.setPitch(0);
 		loc.setYaw(0);
 		return loc;
-	}
-
-	private void createFloor(Location loc, Material material) {
-		Location floor1 = loc.clone();
-		floor1.subtract(1, 1, 1);
-
-		Location floor2 = loc.clone();
-		floor2.add(1, 0, 1);
-		floor2.subtract(0, 1, 0);
-
-		for (int x = floor1.getBlockX(); x <= floor2.getBlockX(); x++) {
-			for (int y = floor1.getBlockY(); y <= floor2.getBlockY(); y++) {
-				for (int z = floor1.getBlockZ(); z <= floor2.getBlockZ(); z++) {
-
-					Location l = new Location(loc.getWorld(), x, y, z);
-
-					l.getBlock().setType(material);
-				}
-			}
-		}
-	}
-
-	private void createSpace(Location loc) {
-		Location pos1 = loc.clone();
-		pos1.subtract(1, 0, 1);
-
-		Location pos2 = loc.clone();
-		pos2.add(1, 2, 1);
-
-		for (int x = pos1.getBlockX(); x <= pos2.getBlockX(); x++) {
-			for (int y = pos1.getBlockY(); y <= pos2.getBlockY(); y++) {
-				for (int z = pos1.getBlockZ(); z <= pos2.getBlockZ(); z++) {
-
-					Location l = new Location(loc.getWorld(), x, y, z);
-					l.getBlock().setType(Material.AIR);
-				}
-			}
-		}
 	}
 }

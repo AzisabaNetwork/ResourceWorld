@@ -3,7 +3,6 @@ package jp.azisaba.main.resourceworld.listeners;
 import java.util.HashMap;
 import java.util.List;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -47,7 +46,6 @@ public class CreateSafetySpawnListener implements Listener {
 		if (world.getProtect() > 0) {
 			Safety.createFloor(loc, mat, world.getProtect(), world.getProtect());
 			Safety.createSpace(loc, world.getProtect(), 5, world.getProtect());
-			Bukkit.getLogger().info("Created.");
 		}
 	}
 

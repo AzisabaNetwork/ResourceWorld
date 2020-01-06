@@ -46,9 +46,8 @@
       <url>https://mvn-repo.azisaba.net/</url>
     </repository>
     <repository>
-      <id>onarandombox-repo</id>
-      <name>Multiverse repository</name>
-      <url>http://repo.onarandombox.com/content/groups/public/</url>
+      <id>minebench-repo</id>
+      <url>https://repo.minebench.de/</url>
     </repository>
   </repositories>
 

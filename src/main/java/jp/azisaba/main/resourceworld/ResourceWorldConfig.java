@@ -1,5 +1,11 @@
 package jp.azisaba.main.resourceworld;
 
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Sound;
+import org.bukkit.World.Environment;
+import org.bukkit.configuration.file.FileConfiguration;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -8,250 +14,240 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Sound;
-import org.bukkit.World.Environment;
-import org.bukkit.configuration.file.FileConfiguration;
-
 public class ResourceWorldConfig {
 
-	private ResourceWorld plugin;
-	private FileConfiguration conf;
+    @ConfigOptions(path = "Chat.Prefix", type = OptionType.CHAT_FORMAT)
+    public String chatPrefix = "&c[&6Resource&c] ";
+    @ConfigOptions(path = "Chat.WarnMessage", type = OptionType.CHAT_FORMAT)
+    public String chatWarning = "&e{TIME}後&aに資源ワールドを再生成します。";
+    @ConfigOptions(path = "Log.LogInConsole")
+    public boolean logInConsole = false;
+    @ConfigOptions(path = "useMultiverse")
+    public boolean useMultiverse = true;
+    public List<RecreateWorld> createWorldList = new ArrayList<RecreateWorld>();
+    private ResourceWorld plugin;
+    private FileConfiguration conf;
 
-	@ConfigOptions(path = "Chat.Prefix", type = OptionType.CHAT_FORMAT)
-	public String chatPrefix = "&c[&6Resource&c] ";
-	@ConfigOptions(path = "Chat.WarnMessage", type = OptionType.CHAT_FORMAT)
-	public String chatWarning = "&e{TIME}後&aに資源ワールドを再生成します。";
+    public ResourceWorldConfig(ResourceWorld plugin) {
+        this.plugin = plugin;
+        this.conf = plugin.getConfig();
+    }
 
-	@ConfigOptions(path = "Log.LogInConsole")
-	public boolean logInConsole = false;
+    public void loadConfig() {
+        for (Field field : getClass().getFields()) {
+            ConfigOptions anno = field.getAnnotation(ConfigOptions.class);
 
-	@ConfigOptions(path = "useMultiverse")
-	public boolean useMultiverse = true;
+            if (anno == null) {
+                continue;
+            }
 
-	public List<RecreateWorld> createWorldList = new ArrayList<RecreateWorld>();
+            String path = anno.path();
 
-	public ResourceWorldConfig(ResourceWorld plugin) {
-		this.plugin = plugin;
-		this.conf = plugin.getConfig();
-	}
+            if (conf.get(path) == null) {
 
-	public void loadConfig() {
-		for (Field field : getClass().getFields()) {
-			ConfigOptions anno = field.getAnnotation(ConfigOptions.class);
+                try {
 
-			if (anno == null) {
-				continue;
-			}
+                    if (anno.type() == OptionType.NONE) {
+                        conf.set(path, field.get(this));
+                    } else if (anno.type() == OptionType.LOCATION) {
+                        Location loc = (Location) field.get(this);
 
-			String path = anno.path();
+                        conf.set(path, loc.getWorld().getName() + "," + loc.getX() + "," + loc.getY() + "," + loc.getZ()
+                                + "," + loc.getYaw() + "," + loc.getPitch());
+                    } else if (anno.type() == OptionType.CHAT_FORMAT) {
 
-			if (conf.get(path) == null) {
+                        String msg = (String) field.get(this);
+                        conf.set(path, msg);
 
-				try {
+                        msg = msg.replace("&", "§");
+                        field.set(this, msg);
+                    } else if (anno.type() == OptionType.SOUND) {
+                        conf.set(path, field.get(this).toString());
+                    } else if (anno.type() == OptionType.LOCATION_LIST) {
+                        @SuppressWarnings("unchecked")
+                        List<Location> locations = (List<Location>) field.get(this);
 
-					if (anno.type() == OptionType.NONE) {
-						conf.set(path, field.get(this));
-					} else if (anno.type() == OptionType.LOCATION) {
-						Location loc = (Location) field.get(this);
+                        List<String> strs = new ArrayList<String>();
 
-						conf.set(path, loc.getWorld().getName() + "," + loc.getX() + "," + loc.getY() + "," + loc.getZ()
-								+ "," + loc.getYaw() + "," + loc.getPitch());
-					} else if (anno.type() == OptionType.CHAT_FORMAT) {
+                        if (!locations.isEmpty()) {
 
-						String msg = (String) field.get(this);
-						conf.set(path, msg);
+                            for (Location loc : locations) {
+                                strs.add(loc.getWorld().getName() + "," + loc.getX() + "," + loc.getY() + ","
+                                        + loc.getZ()
+                                        + "," + loc.getYaw() + "," + loc.getPitch());
+                            }
+                        } else {
+                            strs.add("WorldName,X,Y,Z,Yaw,Pitch");
+                        }
 
-						msg = msg.replace("&", "§");
-						field.set(this, msg);
-					} else if (anno.type() == OptionType.SOUND) {
-						conf.set(path, field.get(this).toString());
-					} else if (anno.type() == OptionType.LOCATION_LIST) {
-						@SuppressWarnings("unchecked")
-						List<Location> locations = (List<Location>) field.get(this);
+                        conf.set(path, strs);
+                    }
 
-						List<String> strs = new ArrayList<String>();
+                    plugin.saveConfig();
+                } catch (Exception e) {
+                    Bukkit.getLogger().warning("Error: " + e.getMessage());
+                    e.printStackTrace();
+                }
+            } else {
 
-						if (!locations.isEmpty()) {
+                try {
+                    if (anno.type() == OptionType.NONE) {
+                        field.set(this, conf.get(path));
+                    } else if (anno.type() == OptionType.LOCATION) {
 
-							for (Location loc : locations) {
-								strs.add(loc.getWorld().getName() + "," + loc.getX() + "," + loc.getY() + ","
-										+ loc.getZ()
-										+ "," + loc.getYaw() + "," + loc.getPitch());
-							}
-						} else {
-							strs.add("WorldName,X,Y,Z,Yaw,Pitch");
-						}
+                        String[] strings = conf.getString(path).split(",");
+                        Location loc = null;
+                        try {
+                            loc = new Location(Bukkit.getWorld(strings[0]), Double.parseDouble(strings[1]),
+                                    Double.parseDouble(strings[2]), Double.parseDouble(strings[3]));
+                            loc.setYaw(Float.parseFloat(strings[4]));
+                            loc.setPitch(Float.parseFloat(strings[5]));
+                        } catch (Exception e) {
+                            // None
+                        }
 
-						conf.set(path, strs);
-					}
+                        if (loc == null) {
+                            Bukkit.getLogger().warning("Error. " + path + " の値がロードできませんでした。");
+                            continue;
+                        }
 
-					plugin.saveConfig();
-				} catch (Exception e) {
-					Bukkit.getLogger().warning("Error: " + e.getMessage());
-					e.printStackTrace();
-				}
-			} else {
+                        field.set(this, loc);
+                    } else if (anno.type() == OptionType.SOUND) {
 
-				try {
-					if (anno.type() == OptionType.NONE) {
-						field.set(this, conf.get(path));
-					} else if (anno.type() == OptionType.LOCATION) {
+                        String name = conf.getString(path);
+                        Sound sound;
 
-						String[] strings = conf.getString(path).split(",");
-						Location loc = null;
-						try {
-							loc = new Location(Bukkit.getWorld(strings[0]), Double.parseDouble(strings[1]),
-									Double.parseDouble(strings[2]), Double.parseDouble(strings[3]));
-							loc.setYaw(Float.parseFloat(strings[4]));
-							loc.setPitch(Float.parseFloat(strings[5]));
-						} catch (Exception e) {
-							// None
-						}
+                        try {
+                            sound = Sound.valueOf(name.toUpperCase());
+                        } catch (Exception e) {
+                            Bukkit.getLogger().warning("Error. " + path + " の値がロードできませんでした。");
+                            continue;
+                        }
 
-						if (loc == null) {
-							Bukkit.getLogger().warning("Error. " + path + " の値がロードできませんでした。");
-							continue;
-						}
+                        field.set(this, sound);
+                    } else if (anno.type() == OptionType.CHAT_FORMAT) {
 
-						field.set(this, loc);
-					} else if (anno.type() == OptionType.SOUND) {
+                        String unformatMessage = conf.getString(path);
 
-						String name = conf.getString(path);
-						Sound sound;
+                        unformatMessage = unformatMessage.replace("&", "§");
 
-						try {
-							sound = Sound.valueOf(name.toUpperCase());
-						} catch (Exception e) {
-							Bukkit.getLogger().warning("Error. " + path + " の値がロードできませんでした。");
-							continue;
-						}
+                        field.set(this, unformatMessage);
+                    } else if (anno.type() == OptionType.LOCATION_LIST) {
 
-						field.set(this, sound);
-					} else if (anno.type() == OptionType.CHAT_FORMAT) {
+                        List<String> strList = conf.getStringList(path);
 
-						String unformatMessage = conf.getString(path);
+                        List<Location> locList = new ArrayList<Location>();
 
-						unformatMessage = unformatMessage.replace("&", "§");
+                        for (String str : strList) {
 
-						field.set(this, unformatMessage);
-					} else if (anno.type() == OptionType.LOCATION_LIST) {
+                            String[] strings = str.split(",");
+                            Location loc = null;
+                            try {
+                                loc = new Location(Bukkit.getWorld(strings[0]), Double.parseDouble(strings[1]),
+                                        Double.parseDouble(strings[2]), Double.parseDouble(strings[3]));
+                                loc.setYaw(Float.parseFloat(strings[4]));
+                                loc.setPitch(Float.parseFloat(strings[5]));
+                            } catch (Exception e) {
+                                // None
+                            }
 
-						List<String> strList = conf.getStringList(path);
+                            if (loc == null) {
+                                Bukkit.getLogger().warning("Error. " + path + " の " + str + "がロードできませんでした。");
+                                continue;
+                            }
 
-						List<Location> locList = new ArrayList<Location>();
+                            locList.add(loc);
+                        }
 
-						for (String str : strList) {
+                        field.set(this, locList);
+                    }
+                } catch (Exception e) {
+                    Bukkit.getLogger().warning("Error. " + e.getMessage());
+                }
+            }
+        }
 
-							String[] strings = str.split(",");
-							Location loc = null;
-							try {
-								loc = new Location(Bukkit.getWorld(strings[0]), Double.parseDouble(strings[1]),
-										Double.parseDouble(strings[2]), Double.parseDouble(strings[3]));
-								loc.setYaw(Float.parseFloat(strings[4]));
-								loc.setPitch(Float.parseFloat(strings[5]));
-							} catch (Exception e) {
-								// None
-							}
+        loadAdditionalSettings();
+    }
 
-							if (loc == null) {
-								Bukkit.getLogger().warning("Error. " + path + " の " + str + "がロードできませんでした。");
-								continue;
-							}
+    private void loadAdditionalSettings() {
 
-							locList.add(loc);
-						}
+        if (conf.getConfigurationSection("RecreateWorlds") == null) {
+            conf.set("RecreateWorlds.ExWorldName.WorldBorder", 1000);
+            conf.set("RecreateWorlds.ExWorldName.Environment", "Normal");
+            conf.set("RecreateWorlds.ExWorldName.Portal", "PortalName");
 
-						field.set(this, locList);
-					}
-				} catch (Exception e) {
-					Bukkit.getLogger().warning("Error. " + e.getMessage());
-				}
-			}
-		}
+            plugin.saveConfig();
+            return;
+        }
 
-		loadAdditionalSettings();
-	}
+        for (String str : conf.getConfigurationSection("RecreateWorlds").getKeys(false)) {
+            String worldName = str;
+            double borderSize;
+            Environment env;
+            String portal = null;
+            int protect = -1;
 
-	private void loadAdditionalSettings() {
+            boolean canLoad = true;
+            if (conf.get("RecreateWorlds." + str + ".WorldBorder") == null) {
+                plugin.getLogger().info("'RecreateWorlds." + str + ".WorldBorder'" + " が指定されていません!");
+                canLoad = false;
+            }
+            if (conf.get("RecreateWorlds." + str + ".Environment") == null) {
+                plugin.getLogger().info("'RecreateWorlds." + str + ".Environment'" + " が指定されていません!");
+                canLoad = false;
+            }
 
-		if (conf.getConfigurationSection("RecreateWorlds") == null) {
-			conf.set("RecreateWorlds.ExWorldName.WorldBorder", 1000);
-			conf.set("RecreateWorlds.ExWorldName.Environment", "Normal");
-			conf.set("RecreateWorlds.ExWorldName.Portal", "PortalName");
+            portal = conf.getString("RecreateWorlds." + str + ".Portal", null);
+            protect = conf.getInt("RecreateWorlds." + str + ".Protect", -1);
 
-			plugin.saveConfig();
-			return;
-		}
+            if (!canLoad) {
+                continue;
+            }
 
-		for (String str : conf.getConfigurationSection("RecreateWorlds").getKeys(false)) {
-			String worldName = str;
-			double borderSize;
-			Environment env;
-			String portal = null;
-			int protect = -1;
+            borderSize = conf.getDouble("RecreateWorlds." + str + ".WorldBorder");
 
-			boolean canLoad = true;
-			if (conf.get("RecreateWorlds." + str + ".WorldBorder") == null) {
-				plugin.getLogger().info("'RecreateWorlds." + str + ".WorldBorder'" + " が指定されていません!");
-				canLoad = false;
-			}
-			if (conf.get("RecreateWorlds." + str + ".Environment") == null) {
-				plugin.getLogger().info("'RecreateWorlds." + str + ".Environment'" + " が指定されていません!");
-				canLoad = false;
-			}
+            try {
 
-			portal = conf.getString("RecreateWorlds." + str + ".Portal", null);
-			protect = conf.getInt("RecreateWorlds." + str + ".Protect", -1);
+                String e = conf.getString("RecreateWorlds." + str + ".Environment");
 
-			if (!canLoad) {
-				continue;
-			}
+                if (e.equalsIgnoreCase("end")) {
+                    e = "THE_END";
+                }
 
-			borderSize = conf.getDouble("RecreateWorlds." + str + ".WorldBorder");
+                env = Environment.valueOf(e.toUpperCase());
+            } catch (Exception e) {
+                plugin.getLogger().info(str + " の'Environment'の値が正しくありません。'Normal', 'Nether', 'End' のどれかを指定してください。");
+                continue;
+            }
 
-			try {
+            RecreateWorld rWorld = new RecreateWorld(worldName, env, borderSize, portal, protect);
 
-				String e = conf.getString("RecreateWorlds." + str + ".Environment");
+            plugin.getLogger().info("==========[" + worldName + "]==========");
+            plugin.getLogger().info("Env: " + env.toString());
+            plugin.getLogger().info("WorldBorder: " + borderSize);
 
-				if (e.equalsIgnoreCase("end")) {
-					e = "THE_END";
-				}
+            if (portal != null) {
+                plugin.getLogger().info("Portal: " + portal);
+            }
+            if (protect > 0) {
+                plugin.getLogger().info("Protect: " + protect);
+            }
+            plugin.getLogger().info("==============================");
 
-				env = Environment.valueOf(e.toUpperCase());
-			} catch (Exception e) {
-				plugin.getLogger().info(str + " の'Environment'の値が正しくありません。'Normal', 'Nether', 'End' のどれかを指定してください。");
-				continue;
-			}
+            createWorldList.add(rWorld);
+        }
+    }
 
-			RecreateWorld rWorld = new RecreateWorld(worldName, env, borderSize, portal, protect);
+    public enum OptionType {
+        LOCATION, LOCATION_LIST, SOUND, CHAT_FORMAT, NONE
+    }
 
-			plugin.getLogger().info("==========[" + worldName + "]==========");
-			plugin.getLogger().info("Env: " + env.toString());
-			plugin.getLogger().info("WorldBorder: " + borderSize);
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    public @interface ConfigOptions {
+        public String path();
 
-			if (portal != null) {
-				plugin.getLogger().info("Portal: " + portal);
-			}
-			if (protect > 0) {
-				plugin.getLogger().info("Protect: " + protect);
-			}
-			plugin.getLogger().info("==============================");
-
-			createWorldList.add(rWorld);
-		}
-	}
-
-	@Retention(RetentionPolicy.RUNTIME)
-	@Target(ElementType.FIELD)
-	public @interface ConfigOptions {
-		public String path();
-
-		public OptionType type() default OptionType.NONE;
-	}
-
-	public enum OptionType {
-		LOCATION, LOCATION_LIST, SOUND, CHAT_FORMAT, NONE
-	}
+        public OptionType type() default OptionType.NONE;
+    }
 }

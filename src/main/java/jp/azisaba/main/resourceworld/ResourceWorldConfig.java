@@ -174,6 +174,7 @@ public class ResourceWorldConfig {
 
         if (conf.getConfigurationSection("RecreateWorlds") == null) {
             conf.set("RecreateWorlds.ExWorldName.WorldBorder", 1000);
+            conf.set("RecreateWorlds.ExWorldName.KeepInventory", true);
             conf.set("RecreateWorlds.ExWorldName.Environment", "Normal");
             conf.set("RecreateWorlds.ExWorldName.Portal", "PortalName");
 
@@ -184,6 +185,7 @@ public class ResourceWorldConfig {
         for (String str : conf.getConfigurationSection("RecreateWorlds").getKeys(false)) {
             String worldName = str;
             double borderSize;
+            boolean keepInventory;
             Environment env;
             String portal = null;
             int protect = -1;
@@ -191,6 +193,10 @@ public class ResourceWorldConfig {
             boolean canLoad = true;
             if (conf.get("RecreateWorlds." + str + ".WorldBorder") == null) {
                 plugin.getLogger().info("'RecreateWorlds." + str + ".WorldBorder'" + " が指定されていません!");
+                canLoad = false;
+            }
+            if (conf.get("RecreateWorlds." + str + ".KeepInventory") == null) {
+                plugin.getLogger().info("'RecreateWorlds." + str + ".KeepInventory'" + " が指定されていません!");
                 canLoad = false;
             }
             if (conf.get("RecreateWorlds." + str + ".Environment") == null) {
@@ -206,6 +212,7 @@ public class ResourceWorldConfig {
             }
 
             borderSize = conf.getDouble("RecreateWorlds." + str + ".WorldBorder");
+            keepInventory = conf.getBoolean("RecreateWorlds." + str + ".KeepInventory");
 
             try {
 
@@ -221,11 +228,12 @@ public class ResourceWorldConfig {
                 continue;
             }
 
-            RecreateWorld rWorld = new RecreateWorld(worldName, env, borderSize, portal, protect);
+            RecreateWorld rWorld = new RecreateWorld(worldName, env, borderSize, keepInventory, portal, protect);
 
             plugin.getLogger().info("==========[" + worldName + "]==========");
             plugin.getLogger().info("Env: " + env.toString());
             plugin.getLogger().info("WorldBorder: " + borderSize);
+            plugin.getLogger().info("KeepInventory: " + keepInventory);
 
             if (portal != null) {
                 plugin.getLogger().info("Portal: " + portal);

@@ -7,34 +7,39 @@ public class RecreateWorld {
     private String worldName;
     private Environment type;
     private double worldBorderSize;
+    private boolean keepInventory;
     private String portalName = null;
 
     private int protect = -1;
 
-    public RecreateWorld(String worldName, Environment type, double worldBorderSize) {
+    public RecreateWorld(String worldName, Environment type, double worldBorderSize, boolean keepInventory) {
         this.worldName = worldName;
         this.type = type;
         this.worldBorderSize = worldBorderSize;
+        this.keepInventory = keepInventory;
     }
 
-    public RecreateWorld(String worldName, Environment type, double worldBorderSize, String portal) {
+    public RecreateWorld(String worldName, Environment type, double worldBorderSize, boolean keepInventory, String portal) {
         this.worldName = worldName;
         this.type = type;
         this.worldBorderSize = worldBorderSize;
+        this.keepInventory = keepInventory;
         this.portalName = portal;
     }
 
-    public RecreateWorld(String worldName, Environment type, double worldBorderSize, int protect) {
+    public RecreateWorld(String worldName, Environment type, double worldBorderSize, boolean keepInventory, int protect) {
         this.worldName = worldName;
         this.type = type;
         this.worldBorderSize = worldBorderSize;
+        this.keepInventory = keepInventory;
         this.protect = protect;
     }
 
-    public RecreateWorld(String worldName, Environment type, double worldBorderSize, String portal, int protect) {
+    public RecreateWorld(String worldName, Environment type, double worldBorderSize, boolean keepInventory, String portal, int protect) {
         this.worldName = worldName;
         this.type = type;
         this.worldBorderSize = worldBorderSize;
+        this.keepInventory = keepInventory;
         this.portalName = portal;
         this.protect = protect;
     }
@@ -49,6 +54,10 @@ public class RecreateWorld {
 
     public double getWorldBorderSize() {
         return worldBorderSize;
+    }
+
+    public boolean isKeepInventory() {
+        return keepInventory;
     }
 
     public String getPortalName() {

@@ -123,6 +123,7 @@ public class ResourceWorld extends JavaPlugin {
         World newWorld = generateWorld(createWorld.getWorldName(), createWorld.getEnvironment());
 
         newWorld.getWorldBorder().setSize(createWorld.getWorldBorderSize());
+        newWorld.setGameRule(GameRule.KEEP_INVENTORY, createWorld.isKeepInventory());
         return true;
     }
 
@@ -160,6 +161,8 @@ public class ResourceWorld extends JavaPlugin {
         Location spawn = mvWorld.getSpawnLocation();
         spawn.setX(0.5);
         spawn.setZ(0.5);
+
+        world.setGameRule(GameRule.KEEP_INVENTORY, createWorld.isKeepInventory());
 
         Location loc = getTopLocation(spawn);
 

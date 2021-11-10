@@ -196,14 +196,14 @@ public class ResourceWorldConfig {
                 canLoad = false;
             }
             if (conf.get("RecreateWorlds." + str + ".KeepInventory") == null) {
-                plugin.getLogger().info("'RecreateWorlds." + str + ".KeepInventory'" + " が指定されていません!");
-                canLoad = false;
+                plugin.getLogger().info("'RecreateWorlds." + str + ".KeepInventory'" + "が指定されていません! KeepInventoryはtrueに設定されます。");
             }
             if (conf.get("RecreateWorlds." + str + ".Environment") == null) {
                 plugin.getLogger().info("'RecreateWorlds." + str + ".Environment'" + " が指定されていません!");
                 canLoad = false;
             }
 
+            keepInventory = conf.getBoolean("RecreateWorlds." + str + ".KeepInventory", true);
             portal = conf.getString("RecreateWorlds." + str + ".Portal", null);
             protect = conf.getInt("RecreateWorlds." + str + ".Protect", -1);
 
@@ -212,7 +212,6 @@ public class ResourceWorldConfig {
             }
 
             borderSize = conf.getDouble("RecreateWorlds." + str + ".WorldBorder");
-            keepInventory = conf.getBoolean("RecreateWorlds." + str + ".KeepInventory");
 
             try {
 

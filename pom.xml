@@ -47,10 +47,6 @@
             <url>https://hub.spigotmc.org/nexus/content/groups/public/</url>
         </repository>
         <repository>
-            <id>azisaba-repo</id>
-            <url>https://mvn-repo.azisaba.net/</url>
-        </repository>
-        <repository>
             <id>minebench-repo</id>
             <url>https://repo.minebench.de/</url>
         </repository>

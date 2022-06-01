@@ -3,6 +3,7 @@ package jp.azisaba.main.resourceworld.command;
 import jp.azisaba.main.resourceworld.ProtectManager;
 import jp.azisaba.main.resourceworld.RecreateWorld;
 import jp.azisaba.main.resourceworld.ResourceWorld;
+import jp.azisaba.main.resourceworld.task.ExecuteRecreateTask;
 import jp.azisaba.main.resourceworld.task.SpawnPointTaskManager;
 import jp.azisaba.main.resourceworld.utils.TimeCalculateManager;
 import net.md_5.bungee.api.ChatColor;
@@ -96,21 +97,8 @@ public class ResourceWorldCommand implements CommandExecutor {
     }
 
     private void recreateWorlds() {
-        new BukkitRunnable() {
-            public void run() {
-
-                for (RecreateWorld world : plugin.config.createWorldList) {
-
-                    boolean b = plugin.recreateResourceWorld(world);
-
-                    if (b && plugin.config.logInConsole) {
-                        plugin.getLogger().info(world.getWorldName() + "の生成に成功。");
-                        Bukkit.broadcastMessage(
-                                ChatColor.YELLOW + "[" + ChatColor.GREEN + "再生成システム" + ChatColor.YELLOW + "] "
-                                        + ChatColor.RED + world.getWorldName() + ChatColor.GREEN + " の再生成に成功！");
-                    }
-                }
-            }
-        }.runTaskLater(plugin, 1L);
+        ExecuteRecreateTask recreateTask = new ExecuteRecreateTask(plugin);
+        plugin.config.createWorldList.forEach(recreateTask::add);
+        recreateTask.run();
     }
 }

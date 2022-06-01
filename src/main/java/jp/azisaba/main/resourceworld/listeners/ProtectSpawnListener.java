@@ -327,14 +327,18 @@ public class ProtectSpawnListener implements Listener {
 
     private boolean isCenterArea(Location breakLoc, Location spawnLoc, int protect) {
 
+        spawnLoc = spawnLoc.clone();
+        spawnLoc.setX(spawnLoc.getBlockX());
+        spawnLoc.setZ(spawnLoc.getBlockZ());
+
         if (protect <= 0) {
             return false;
         }
 
-        if (Math.abs(breakLoc.getX() - spawnLoc.getX()) > protect) {
+        if (Math.abs(breakLoc.getX()) - Math.abs(spawnLoc.getX()) > protect) {
             return false;
         }
-        if (Math.abs(breakLoc.getZ() - spawnLoc.getZ()) > protect) {
+        if (Math.abs(breakLoc.getZ()) - Math.abs(spawnLoc.getZ()) > protect) {
             return false;
         }
 

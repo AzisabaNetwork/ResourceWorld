@@ -18,26 +18,10 @@ import java.util.ArrayList;
 
 public class ResourceWorld extends JavaPlugin {
 
-    private final String PLUGIN_NAME = "ResourceWorld";
-
     public ResourceWorldConfig config;
 
     private ResourceWorldCreateTask createTask;
     private BroadcastWarningTask warningTask;
-
-    private static void delete(String path) {
-        File filePath = new File(path);
-        String[] list = filePath.list();
-        for (String file : list) {
-            File f = new File(path + File.separator + file);
-            if (f.isDirectory()) {
-                delete(path + File.separator + file);
-            } else {
-                f.delete();
-            }
-        }
-        filePath.delete();
-    }
 
     @Override
     public void onEnable() {
@@ -60,12 +44,26 @@ public class ResourceWorld extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new ProtectSpawnListener(this, config.createWorldList), this);
 //		Bukkit.getPluginManager().registerEvents(new CreateSafetySpawnListener(this, config.createWorldList), this);
 
-        Bukkit.getLogger().info(PLUGIN_NAME + " enabled.");
+        Bukkit.getLogger().info(getName() + " enabled.");
     }
 
     @Override
     public void onDisable() {
-        Bukkit.getLogger().info(PLUGIN_NAME + " disabled.");
+        Bukkit.getLogger().info(getName() + " disabled.");
+    }
+
+    private static void delete(String path) {
+        File filePath = new File(path);
+        String[] list = filePath.list();
+        for (String file : list) {
+            File f = new File(path + File.separator + file);
+            if (f.isDirectory()) {
+                delete(path + File.separator + file);
+            } else {
+                f.delete();
+            }
+        }
+        filePath.delete();
     }
 
     public boolean recreateResourceWorld(RecreateWorld createWorld) {

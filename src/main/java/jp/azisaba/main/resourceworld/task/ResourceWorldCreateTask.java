@@ -69,17 +69,10 @@ public class ResourceWorldCreateTask {
                     return;
                 }
 
-                for (RecreateWorld world : worldList) {
+                ExecuteRecreateTask recreateTask = new ExecuteRecreateTask(plugin);
+                worldList.forEach(recreateTask::add);
 
-                    boolean b = plugin.recreateResourceWorld(world);
-
-                    if (b && plugin.config.logInConsole) {
-                        plugin.getLogger().info(world.getWorldName() + "の生成に成功。");
-                        Bukkit.broadcastMessage(
-                                ChatColor.YELLOW + "[" + ChatColor.GREEN + "再生成システム" + ChatColor.YELLOW + "] "
-                                        + ChatColor.RED + world.getWorldName() + ChatColor.GREEN + " の再生成に成功！");
-                    }
-                }
+                recreateTask.run();
 
                 task = getTask().runTaskLater(plugin, 20 * 60 * 60);
             }

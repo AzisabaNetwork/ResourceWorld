@@ -47,7 +47,7 @@ public class ProtectSpawnListener implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOW)
     public void onBlockBreakEvent(BlockBreakEvent e) {
 
         if (ProtectManager.get() == false) {
@@ -86,7 +86,7 @@ public class ProtectSpawnListener implements Listener {
         e.setCancelled(true);
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOW)
     public void onBlockPlaceEvent(BlockPlaceEvent e) {
 
         if (ProtectManager.get() == false) {
@@ -125,7 +125,7 @@ public class ProtectSpawnListener implements Listener {
         e.setCancelled(true);
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOW)
     public void onBlockFromTo(BlockFromToEvent e) {
 
         if (ProtectManager.get() == false) {
@@ -147,7 +147,7 @@ public class ProtectSpawnListener implements Listener {
         e.setCancelled(true);
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOW)
     public void onWaterFill(PlayerBucketFillEvent e) {
 
         if (ProtectManager.get() == false) {
@@ -183,7 +183,7 @@ public class ProtectSpawnListener implements Listener {
         e.setCancelled(true);
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOW)
     public void onWaterEmpty(PlayerBucketEmptyEvent e) {
 
         if (ProtectManager.get() == false) {
@@ -219,7 +219,7 @@ public class ProtectSpawnListener implements Listener {
         e.setCancelled(true);
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOW)
     public void noUproot(PlayerInteractEvent e) {
 
         if (ProtectManager.get() == false) {
@@ -262,7 +262,7 @@ public class ProtectSpawnListener implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOW)
     public void onBlockFall(EntityChangeBlockEvent e) {
         Entity ent = e.getEntity();
         World world = ent.getWorld();

@@ -335,10 +335,10 @@ public class ProtectSpawnListener implements Listener {
             return false;
         }
 
-        if (Math.abs(breakLoc.getX()) - Math.abs(spawnLoc.getX()) > protect) {
+        if (Math.abs(breakLoc.getX()) - Math.abs(spawnLoc.getX()) >= protect) {
             return false;
         }
-        if (Math.abs(breakLoc.getZ()) - Math.abs(spawnLoc.getZ()) > protect) {
+        if (Math.abs(breakLoc.getZ()) - Math.abs(spawnLoc.getZ()) >= protect) {
             return false;
         }
 

@@ -159,6 +159,8 @@ public class ResourceWorld extends JavaPlugin {
         Location spawn = mvWorld.getSpawnLocation();
         spawn.setX(0.5);
         spawn.setZ(0.5);
+        spawn.setPitch(0);
+        spawn.setYaw(0);
 
         world.setGameRule(GameRule.KEEP_INVENTORY, createWorld.isKeepInventory());
 
@@ -168,7 +170,7 @@ public class ResourceWorld extends JavaPlugin {
 
         if (createWorld.getEnvironment() == Environment.NORMAL) {
             loc.setY(63);
-            mvWorld.getCBWorld().setSpawnLocation(loc);
+            mvWorld.setSpawnLocation(loc);
 
             Safety.createFloor(loc, Material.STONE, createWorld.getProtect(), createWorld.getProtect());
             Safety.createSpace(loc, createWorld.getProtect(), 20, createWorld.getProtect());
@@ -225,9 +227,7 @@ public class ResourceWorld extends JavaPlugin {
             loc.subtract(0, 1, 0);
         }
 
-        loc.add(0.5, 1, 0.5);
-        loc.setPitch(0);
-        loc.setYaw(0);
+        loc.add(0, 1, 0);
         return loc;
     }
 }

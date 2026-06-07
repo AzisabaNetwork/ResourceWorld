@@ -1,10 +1,10 @@
-name: ${project.name}
+name: ${name}
 main: jp.azisaba.main.resourceworld.ResourceWorld
-version: ${project.version}
+version: ${version}
 author: siloneco
-description: ${project.description}
-softdepend: [WorldEdit, FastAsyncWorldEdit]
-api-version: 1.13
+description: ${description}
+softdepend: [Multiverse-Core, WorldEdit, FastAsyncWorldEdit]
+api-version: '1.21'
 commands:
   resourceworld:
     aliases: ["rw", "resourcew", "rworld"]

@@ -1,8 +1,6 @@
 package jp.azisaba.main.resourceworld;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.World.Environment;
 import org.bukkit.configuration.file.FileConfiguration;
 
@@ -118,7 +116,7 @@ public class ResourceWorldConfig {
                         Sound sound;
 
                         try {
-                            sound = Sound.valueOf(name.toUpperCase());
+                            sound = Registry.SOUNDS.get(new NamespacedKey(plugin, name.toLowerCase()));
                         } catch (Exception e) {
                             Bukkit.getLogger().warning("Error. " + path + " の値がロードできませんでした。");
                             continue;

@@ -1,6 +1,6 @@
 
-# Created by https://www.gitignore.io/api/java,maven,eclipse
-# Edit at https://www.gitignore.io/?templates=java,maven,eclipse
+# Created by https://www.gitignore.io/api/java,gradle,eclipse
+# Edit at https://www.gitignore.io/?templates=java,gradle,eclipse
 
 ### Eclipse ###
 .metadata
@@ -96,16 +96,9 @@ local.properties
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 
-### Maven ###
-target/
-pom.xml.tag
-pom.xml.releaseBackup
-pom.xml.versionsBackup
-pom.xml.next
-release.properties
-dependency-reduced-pom.xml
-buildNumber.properties
-.mvn/timing.properties
-.mvn/wrapper/maven-wrapper.jar
+### Gradle ###
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
 
-# End of https://www.gitignore.io/api/java,maven,eclipse
+# End of https://www.gitignore.io/api/java,gradle,eclipse

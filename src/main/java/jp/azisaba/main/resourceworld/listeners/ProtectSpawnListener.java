@@ -7,6 +7,7 @@ import net.md_5.bungee.api.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Tag;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
@@ -300,7 +301,8 @@ public class ProtectSpawnListener implements Listener {
             return;
         }
 
-        if (e.getItem().getType() != Material.SIGN || !protectableMaterials.contains(e.getClickedBlock().getType())) {
+        if (!Tag.SIGNS.isTagged(e.getItem().getType())
+                || !protectableMaterials.contains(e.getClickedBlock().getType())) {
             return;
         }
 

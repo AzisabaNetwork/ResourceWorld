@@ -37,13 +37,19 @@ public class ExecuteRecreateTask {
 
       boolean b = plugin.recreateResourceWorld(world);
 
-      if (b && plugin.config.logInConsole) {
-        plugin.getLogger().info(world.getWorldName() + "の生成に成功。");
+      if (b) {
+        if (plugin.config.logInConsole) {
+          plugin.getLogger().info(world.getWorldName() + "の生成に成功。");
+        }
+        Bukkit.broadcastMessage(
+            ChatColor.YELLOW + "[" + ChatColor.GREEN + "再生成システム" + ChatColor.YELLOW + "] "
+                + ChatColor.RED + world.getWorldName() + ChatColor.GREEN + " の再生成に成功！");
+      } else {
+        plugin.getLogger().warning(world.getWorldName() + "の再生成に失敗しました。");
+        Bukkit.broadcastMessage(
+            ChatColor.YELLOW + "[" + ChatColor.GREEN + "再生成システム" + ChatColor.YELLOW + "] "
+                + ChatColor.RED + world.getWorldName() + ChatColor.DARK_RED + " の再生成に失敗しました。");
       }
-
-      Bukkit.broadcastMessage(
-          ChatColor.YELLOW + "[" + ChatColor.GREEN + "再生成システム" + ChatColor.YELLOW + "] "
-              + ChatColor.RED + world.getWorldName() + ChatColor.GREEN + " の再生成に成功！");
 
       if (!worlds.isEmpty()) {
         schedule(20L * 10L);

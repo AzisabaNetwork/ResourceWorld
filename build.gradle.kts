@@ -18,7 +18,7 @@ repositories {
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
-    compileOnly("org.mvplugins.multiverse.core:multiverse-core:5.5.3")
+    compileOnly("org.mvplugins.multiverse.core:multiverse-core:5.8.1")
 }
 
 java {

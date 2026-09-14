@@ -152,6 +152,7 @@ public class ResourceWorld extends JavaPlugin {
         }
 
         newWorld.getWorldBorder().setSize(createWorld.getWorldBorderSize());
+        prepareOverworldSpawn(newWorld, createWorld);
         return saveGeneratedWorld(newWorld);
     }
 
@@ -200,34 +201,10 @@ public class ResourceWorld extends JavaPlugin {
         world.getWorldBorder().setSize(createWorld.getWorldBorderSize());
         world.getWorldBorder().setCenter(mvWorld.getSpawnLocation());
 
-        Location spawn = mvWorld.getSpawnLocation();
-        spawn.setX(0.5);
-        spawn.setZ(0.5);
-        spawn.setPitch(0);
-        spawn.setYaw(0);
-        Location loc = getTopLocation(spawn);
-
-        mvWorld.setAdjustSpawn(false);
-
         if (createWorld.getEnvironment() == Environment.NORMAL) {
-            loc.setY(63);
-            mvWorld.setSpawnLocation(loc);
-
-            Safety.createFloor(loc, Material.STONE, createWorld.getProtect(), createWorld.getProtect());
-            Safety.createSpace(loc, createWorld.getProtect(), 20, createWorld.getProtect());
-        } else if (createWorld.getEnvironment() == Environment.NETHER) {
-            loc = mvWorld.getSpawnLocation();
-
-            loc.setY(32);
-
-            mvWorld.setSpawnLocation(loc);
-
-            Safety.createFloor(loc, Material.NETHERRACK, createWorld.getProtect(), createWorld.getProtect());
-            Safety.createSpace(loc, createWorld.getProtect(), 5, createWorld.getProtect());
-        } else if (createWorld.getEnvironment() == Environment.THE_END) {
-
-            Location check = new Location(world, 5, 70, 5);
-            mvWorld.setSpawnLocation(getTopLocation(check));
+            mvWorld.setAdjustSpawn(false);
+            prepareOverworldSpawn(world, createWorld);
+            mvWorld.setSpawnLocation(world.getSpawnLocation());
         }
 
         if (!saveGeneratedWorld(world)) {
@@ -320,6 +297,25 @@ public class ResourceWorld extends JavaPlugin {
         }
 
         return true;
+    }
+
+    private void prepareOverworldSpawn(World world, RecreateWorld createWorld) {
+        if (createWorld.getEnvironment() != Environment.NORMAL) {
+            return;
+        }
+
+        Location spawn = world.getSpawnLocation();
+        spawn.setX(0.5);
+        spawn.setZ(0.5);
+        spawn.setPitch(0);
+        spawn.setYaw(0);
+
+        Location location = getTopLocation(spawn);
+        location.setY(63);
+        world.setSpawnLocation(location);
+
+        Safety.createFloor(location, Material.STONE, createWorld.getProtect(), createWorld.getProtect());
+        Safety.createSpace(location, createWorld.getProtect(), 20, createWorld.getProtect());
     }
 
     private boolean evacuatePlayers(World world) {

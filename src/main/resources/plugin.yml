@@ -4,7 +4,7 @@ version: ${version}
 author: siloneco
 description: ${description}
 softdepend: [Multiverse-Core, WorldEdit, FastAsyncWorldEdit]
-api-version: '1.21'
+api-version: '1.21.11'
 commands:
   resourceworld:
     aliases: ["rw", "resourcew", "rworld"]

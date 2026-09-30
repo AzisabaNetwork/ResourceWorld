@@ -1,75 +1,74 @@
 package jp.azisaba.main.resourceworld.listeners;
 
+import io.papermc.paper.event.player.AsyncPlayerSpawnLocationEvent;
 import jp.azisaba.main.resourceworld.RecreateWorld;
 import jp.azisaba.main.resourceworld.ResourceWorld;
 import jp.azisaba.main.resourceworld.utils.Safety;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
-import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.World;
-import org.bukkit.World.Environment;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerChangedWorldEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.persistence.PersistentDataType;
 
-import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 public class CreateSafetySpawnListener implements Listener {
 
-    private HashMap<String, RecreateWorld> worldMap = new HashMap<String, RecreateWorld>();
+    private final ResourceWorld plugin;
+    private final Set<String> worlds;
+    private final NamespacedKey regeneratedAt;
 
     public CreateSafetySpawnListener(ResourceWorld plugin, List<RecreateWorld> worlds) {
-        if (worlds == null) {
+        this.plugin = plugin;
+        this.worlds = worlds.stream().map(RecreateWorld::getWorldName).collect(Collectors.toSet());
+        this.regeneratedAt = new NamespacedKey(plugin, "regenerated_at");
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onSpawn(AsyncPlayerSpawnLocationEvent event) {
+        Location savedLocation = event.getSpawnLocation();
+        if (!worlds.contains(savedLocation.getWorld().getName())) {
             return;
         }
-
-        for (RecreateWorld world : worlds) {
-            worldMap.put(world.getWorldName(), world);
+        UUID playerId = event.getConnection().getProfile().getId();
+        try {
+            // World/block/player-data access must run on the server thread, before the player is placed.
+            Location spawn = plugin.getServer().getScheduler().callSyncMethod(plugin, () -> {
+                World world = plugin.getServer().getWorld(savedLocation.getWorld().getName());
+                if (world == null) {
+                    throw new IllegalStateException("ログイン先ワールドがアンロードされました。");
+                }
+                Location location = savedLocation.clone();
+                location.setWorld(world);
+                long generation = world.getPersistentDataContainer().getOrDefault(regeneratedAt,
+                        PersistentDataType.LONG, 0L);
+                long lastSeen = plugin.getServer().getOfflinePlayer(playerId).getLastSeen();
+                return Safety.getLoginLocation(location, lastSeen, generation);
+            }).get();
+            event.setSpawnLocation(spawn);
+        } catch (InterruptedException | ExecutionException | RuntimeException e) {
+            if (e instanceof InterruptedException) {
+                Thread.currentThread().interrupt();
+            }
+            plugin.getLogger().log(Level.SEVERE, "ログイン時の安全なスポーン地点を取得できませんでした。", e);
+            event.getConnection().disconnect(Component.text("安全なログイン地点を取得できませんでした。再接続してください。"));
         }
     }
 
-    @EventHandler
-    public void onChangedWorld(PlayerChangedWorldEvent e) {
-        Player p = e.getPlayer();
-        World w = p.getWorld();
-
-        if (!worldMap.containsKey(w.getName())) {
-            return;
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onRespawn(PlayerRespawnEvent event) {
+        Location location = event.getRespawnLocation();
+        if (worlds.contains(location.getWorld().getName()) && !Safety.isSafe(location)) {
+            event.setRespawnLocation(Safety.getSafeSpawn(location.getWorld().getSpawnLocation()));
         }
-        RecreateWorld world = worldMap.get(w.getName());
-
-        Location loc = getSpawnLocation(w);
-        Material mat = getCorrectMaterial(w);
-
-        if (world.getProtect() > 0) {
-            Safety.createFloor(loc, mat, world.getProtect(), world.getProtect());
-            Safety.createSpace(loc, world.getProtect(), 5, world.getProtect());
-        }
-    }
-
-    private Location getSpawnLocation(World world) {
-        Environment env = world.getEnvironment();
-        Location loc = null;
-        if (env == Environment.NORMAL) {
-            loc = new Location(world, 0.5, 63, 0.5);
-        } else if (env == Environment.NETHER) {
-            loc = new Location(world, 0.5, 32, 0.5);
-        } else if (env == Environment.THE_END) {
-            loc = new Location(world, 5, 70, 5);
-        }
-
-        return loc;
-    }
-
-    private Material getCorrectMaterial(World world) {
-        Environment env = world.getEnvironment();
-        if (env == Environment.NORMAL) {
-            return Material.STONE;
-        } else if (env == Environment.NETHER) {
-            return Material.NETHERRACK;
-        }
-
-        return null;
     }
 }

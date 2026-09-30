@@ -1,6 +1,7 @@
 package jp.azisaba.main.resourceworld;
 
 import jp.azisaba.main.resourceworld.command.ResourceWorldCommand;
+import jp.azisaba.main.resourceworld.listeners.CreateSafetySpawnListener;
 import jp.azisaba.main.resourceworld.listeners.ProtectSpawnListener;
 import jp.azisaba.main.resourceworld.task.BroadcastWarningTask;
 import jp.azisaba.main.resourceworld.task.ResourceWorldCreateTask;
@@ -9,6 +10,7 @@ import jp.azisaba.main.resourceworld.utils.Safety;
 import org.bukkit.*;
 import org.bukkit.World.Environment;
 import org.bukkit.entity.Player;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.mvplugins.multiverse.core.MultiverseCoreApi;
 import org.mvplugins.multiverse.core.utils.result.Attempt;
@@ -55,7 +57,7 @@ public class ResourceWorld extends JavaPlugin {
         Bukkit.getPluginCommand("resourceworld").setExecutor(new ResourceWorldCommand(this));
 
         Bukkit.getPluginManager().registerEvents(new ProtectSpawnListener(this, config.createWorldList), this);
-//		Bukkit.getPluginManager().registerEvents(new CreateSafetySpawnListener(this, config.createWorldList), this);
+        Bukkit.getPluginManager().registerEvents(new CreateSafetySpawnListener(this, config.createWorldList), this);
 
         Bukkit.getLogger().info(getName() + " enabled.");
     }
@@ -151,9 +153,7 @@ public class ResourceWorld extends JavaPlugin {
             return false;
         }
 
-        newWorld.getWorldBorder().setSize(createWorld.getWorldBorderSize());
-        prepareOverworldSpawn(newWorld, createWorld);
-        return saveGeneratedWorld(newWorld);
+        return prepareGeneratedWorld(newWorld, createWorld, null);
     }
 
     private boolean generateWithMultiverse(RecreateWorld createWorld) {
@@ -179,6 +179,11 @@ public class ResourceWorld extends JavaPlugin {
                 loadedWorld = loadResult.get();
             }
 
+            World oldWorld = Bukkit.getWorld(createWorld.getWorldName());
+            if (oldWorld == null || !evacuatePlayers(oldWorld)) {
+                return false;
+            }
+
             generationResult = manager.regenWorld(
                     RegenWorldOptions.world(loadedWorld)
                             .randomSeed(true)
@@ -198,16 +203,7 @@ public class ResourceWorld extends JavaPlugin {
             getLogger().warning("生成したワールドをBukkitから取得できませんでした。");
             return false;
         }
-        world.getWorldBorder().setSize(createWorld.getWorldBorderSize());
-        world.getWorldBorder().setCenter(mvWorld.getSpawnLocation());
-
-        if (createWorld.getEnvironment() == Environment.NORMAL) {
-            mvWorld.setAdjustSpawn(false);
-            prepareOverworldSpawn(world, createWorld);
-            mvWorld.setSpawnLocation(world.getSpawnLocation());
-        }
-
-        if (!saveGeneratedWorld(world)) {
+        if (!prepareGeneratedWorld(world, createWorld, mvWorld)) {
             return false;
         }
 
@@ -217,9 +213,29 @@ public class ResourceWorld extends JavaPlugin {
     private boolean moveWolrdWithMultiverse(RecreateWorld createWorld) {
         WorldManager manager = getMultiverseWorldManager();
 
-        LoadedMultiverseWorld before = manager.getLoadedWorld(createWorld.getWorldName() + "-ready").getOrNull();
-        if (before == null) {
+        MultiverseWorld ready = manager.getWorld(createWorld.getWorldName() + "-ready").getOrNull();
+        if (ready == null) {
             return false;
+        }
+        LoadedMultiverseWorld before = manager.getLoadedWorld(ready).getOrNull();
+        if (before == null) {
+            var loadResult = manager.loadWorld(LoadWorldOptions.world(ready));
+            if (!checkMultiverseResult(loadResult, "複製元ワールドのロード")) {
+                return false;
+            }
+            before = loadResult.get();
+        }
+
+        MultiverseWorld existingWorld = manager.getWorld(createWorld.getWorldName()).getOrNull();
+        if (existingWorld != null) {
+            World oldWorld = Bukkit.getWorld(createWorld.getWorldName());
+            if (oldWorld != null && !evacuatePlayers(oldWorld)) {
+                return false;
+            }
+            if (!checkMultiverseResult(manager.deleteWorld(DeleteWorldOptions.world(existingWorld)),
+                    "複製先の旧ワールドの削除")) {
+                return false;
+            }
         }
 
         Attempt<LoadedMultiverseWorld, ?> cloneResult =
@@ -229,7 +245,8 @@ public class ResourceWorld extends JavaPlugin {
         }
 
         World clonedWorld = Bukkit.getWorld(createWorld.getWorldName());
-        if (clonedWorld == null || !saveGeneratedWorld(clonedWorld)) {
+        if (clonedWorld == null || !prepareGeneratedWorld(clonedWorld, createWorld, cloneResult.get())
+                || !checkMultiverseConfigSave(manager)) {
             getLogger().warning("複製先ワールドの保存を確認できなかったため、複製元ワールドを保持します。");
             return false;
         }
@@ -299,23 +316,36 @@ public class ResourceWorld extends JavaPlugin {
         return true;
     }
 
-    private void prepareOverworldSpawn(World world, RecreateWorld createWorld) {
-        if (createWorld.getEnvironment() != Environment.NORMAL) {
-            return;
+    private boolean prepareGeneratedWorld(World world, RecreateWorld createWorld, LoadedMultiverseWorld mvWorld) {
+        Location spawn = mvWorld == null ? world.getSpawnLocation() : mvWorld.getSpawnLocation();
+        // Multiverse may return a location referring to the source world after cloning.
+        spawn.setWorld(world);
+        if (world.getEnvironment() == Environment.NORMAL) {
+            spawn = Safety.prepareOverworldSpawn(world, createWorld.getProtect());
+        } else {
+            spawn = Safety.getSafeSpawn(spawn);
         }
 
-        Location spawn = world.getSpawnLocation();
-        spawn.setX(0.5);
-        spawn.setZ(0.5);
-        spawn.setPitch(0);
-        spawn.setYaw(0);
+        if (!world.setSpawnLocation(spawn)) {
+            getLogger().warning(world.getName() + "のスポーン地点を設定できませんでした。");
+            return false;
+        }
+        if (mvWorld != null) {
+            Location finalSpawn = spawn;
+            var result = mvWorld.setAdjustSpawn(false).flatMap(ignore -> mvWorld.setSpawnLocation(finalSpawn));
+            if (result.isFailure()) {
+                getLogger().log(java.util.logging.Level.SEVERE,
+                        world.getName() + "のMultiverse-Coreスポーン設定に失敗しました。", result.getCause());
+                return false;
+            }
+        }
 
-        Location location = getTopLocation(spawn);
-        location.setY(63);
-        world.setSpawnLocation(location);
-
-        Safety.createFloor(location, Material.STONE, createWorld.getProtect(), createWorld.getProtect());
-        Safety.createSpace(location, createWorld.getProtect(), 20, createWorld.getProtect());
+        world.setGameRule(GameRules.RESPAWN_RADIUS, 0);
+        world.getWorldBorder().setSize(createWorld.getWorldBorderSize());
+        world.getWorldBorder().setCenter(spawn);
+        world.getPersistentDataContainer().set(new NamespacedKey(this, "regenerated_at"),
+                PersistentDataType.LONG, System.currentTimeMillis());
+        return saveGeneratedWorld(world);
     }
 
     private boolean evacuatePlayers(World world) {
@@ -325,6 +355,7 @@ public class ResourceWorld extends JavaPlugin {
 
         World destinationWorld = Bukkit.getWorlds().stream()
                 .filter(candidate -> !candidate.equals(world))
+                .filter(candidate -> !candidate.getName().endsWith("-ready"))
                 .findFirst()
                 .orElse(null);
         if (destinationWorld == null) {
@@ -341,18 +372,6 @@ public class ResourceWorld extends JavaPlugin {
         }
 
         return true;
-    }
-
-    private Location getTopLocation(Location loc) {
-        loc = loc.clone();
-        loc.setY(257);
-
-        while (loc.getBlock().getType() == Material.AIR || loc.getBlock().getType() == Material.VOID_AIR) {
-            loc.subtract(0, 1, 0);
-        }
-
-        loc.add(0, 1, 0);
-        return loc;
     }
 
     private static final class WorldDeleteException extends RuntimeException {

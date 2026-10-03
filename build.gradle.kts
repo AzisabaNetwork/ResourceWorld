@@ -21,6 +21,24 @@ dependencies {
     compileOnly("org.mvplugins.multiverse.core:multiverse-core:5.5.3")
 }
 
+configurations.testImplementation {
+    extendsFrom(configurations.compileOnly.get())
+}
+
+val spawnRegressionCheck by tasks.registering(JavaExec::class) {
+    classpath = sourceSets.test.get().runtimeClasspath
+    mainClass = "jp.azisaba.main.resourceworld.utils.SpawnRegressionCheck"
+}
+
+tasks.check {
+    dependsOn(spawnRegressionCheck)
+}
+
+tasks.test {
+    // The regression check uses JavaExec instead of a test framework.
+    failOnNoDiscoveredTests = false
+}
+
 java {
     sourceCompatibility = JavaVersion.VERSION_21
     targetCompatibility = JavaVersion.VERSION_21

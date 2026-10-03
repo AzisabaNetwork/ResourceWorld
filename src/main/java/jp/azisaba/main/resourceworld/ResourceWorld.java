@@ -317,22 +317,14 @@ public class ResourceWorld extends JavaPlugin {
     }
 
     private boolean prepareGeneratedWorld(World world, RecreateWorld createWorld, LoadedMultiverseWorld mvWorld) {
-        Location spawn = mvWorld == null ? world.getSpawnLocation() : mvWorld.getSpawnLocation();
-        // Multiverse may return a location referring to the source world after cloning.
-        spawn.setWorld(world);
-        if (world.getEnvironment() == Environment.NORMAL) {
-            spawn = Safety.prepareOverworldSpawn(world, createWorld.getProtect());
-        } else {
-            spawn = Safety.getSafeSpawn(spawn);
-        }
+        Location spawn = Safety.prepareSpawn(world);
 
         if (!world.setSpawnLocation(spawn)) {
             getLogger().warning(world.getName() + "のスポーン地点を設定できませんでした。");
             return false;
         }
         if (mvWorld != null) {
-            Location finalSpawn = spawn;
-            var result = mvWorld.setAdjustSpawn(false).flatMap(ignore -> mvWorld.setSpawnLocation(finalSpawn));
+            var result = mvWorld.setSpawnLocation(spawn);
             if (result.isFailure()) {
                 getLogger().log(java.util.logging.Level.SEVERE,
                         world.getName() + "のMultiverse-Coreスポーン設定に失敗しました。", result.getCause());

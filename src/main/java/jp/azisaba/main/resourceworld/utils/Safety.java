@@ -8,13 +8,11 @@ import org.bukkit.util.BoundingBox;
 
 public class Safety {
 
-    public static Location prepareOverworldSpawn(World world, int protect) {
-        Location spawn = new Location(world, 0.5, Math.clamp(63, world.getMinHeight() + 1,
-                world.getMaxHeight() - 2), 0.5);
-        int radius = Math.max(0, protect);
-        createFloor(spawn, Material.STONE, radius, radius);
-        createSpace(spawn, radius, 20, radius);
-        return spawn;
+    public static Location prepareSpawn(World world) {
+        Location spawn = world.getSpawnLocation();
+        // Regeneration may retain a border centered on the previous world's spawn.
+        world.getWorldBorder().setCenter(spawn);
+        return getSafeSpawn(spawn);
     }
 
     public static Location getLoginLocation(Location savedLocation, long lastSeen, long regeneratedAt) {

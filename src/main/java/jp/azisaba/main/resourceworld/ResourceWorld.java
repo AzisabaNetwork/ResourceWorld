@@ -18,6 +18,7 @@ import org.mvplugins.multiverse.core.utils.result.FailureReason;
 import org.mvplugins.multiverse.core.world.LoadedMultiverseWorld;
 import org.mvplugins.multiverse.core.world.MultiverseWorld;
 import org.mvplugins.multiverse.core.world.WorldManager;
+import org.mvplugins.multiverse.core.world.location.NullSpawnLocation;
 import org.mvplugins.multiverse.core.world.options.CloneWorldOptions;
 import org.mvplugins.multiverse.core.world.options.CreateWorldOptions;
 import org.mvplugins.multiverse.core.world.options.DeleteWorldOptions;
@@ -184,12 +185,26 @@ public class ResourceWorld extends JavaPlugin {
                 return false;
             }
 
+            // keepWorldConfig copies spawn-location too, which would put the old world's coordinates
+            // onto the new terrain. Clearing it keeps the spawn the server picked for the new world.
+            Location previousSpawn = loadedWorld.getSpawnLocation();
+            var clearResult = loadedWorld.setSpawnLocation(NullSpawnLocation.get());
+            if (clearResult.isFailure()) {
+                getLogger().log(java.util.logging.Level.SEVERE,
+                        createWorld.getWorldName() + "の旧スポーン設定を解除できませんでした。", clearResult.getCause());
+                return false;
+            }
+
             generationResult = manager.regenWorld(
                     RegenWorldOptions.world(loadedWorld)
                             .randomSeed(true)
                             .keepGameRule(true)
                             .keepWorldBorder(true)
                             .keepWorldConfig(true));
+
+            if (generationResult.isFailure()) {
+                restoreMultiverseSpawn(manager, createWorld.getWorldName(), previousSpawn);
+            }
         }
 
         if (!checkMultiverseResult(generationResult, "ワールドの再生成")) {
@@ -283,6 +298,20 @@ public class ResourceWorld extends JavaPlugin {
 
         getLogger().warning(operation + "に失敗しました: " + result.getFailureMessage());
         return false;
+    }
+
+    private void restoreMultiverseSpawn(WorldManager manager, String worldName, Location previousSpawn) {
+        MultiverseWorld world = manager.getWorld(worldName).getOrNull();
+        if (world == null || previousSpawn == null) {
+            return;
+        }
+        var result = world.setSpawnLocation(previousSpawn);
+        if (result.isFailure()) {
+            getLogger().log(java.util.logging.Level.SEVERE,
+                    worldName + "のスポーン設定を元に戻せませんでした。", result.getCause());
+            return;
+        }
+        checkMultiverseConfigSave(manager);
     }
 
     private boolean checkMultiverseConfigSave(WorldManager manager) {
